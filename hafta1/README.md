@@ -7,7 +7,7 @@ Bu klasör, **YBS 301 Veri Madenciliği** dersinin 1. haftasına ait teorik ders
 ## 📌 Hafta İçeriği & Materyaller
 
 * 📑 **Ders Sunumu:** [ders1.pptx](ders1.pptx)
-* 🌐 **Google Slides Sunumu:** [Ders Sunumuna Git (Google Presentation)](https://docs.google.com/presentation/d/1q9S_x5ZXWC3841CTffX4k111AGKx08b7)
+
 
 ---
 
