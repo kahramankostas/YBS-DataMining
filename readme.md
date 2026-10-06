@@ -77,4 +77,5 @@ YBS-DataMining/
 
 * **Öğretim Elemanı:** Dr. Kahraman Koştaş  
 * **Fakülte/Bölüm:** İktisadi ve İdari Bilimler Fakültesi, Yönetim Bilişim Sistemleri  
-* **E-posta / Görüşme Saatleri:** Duyurulacaktır.
+* **E-posta / :** kahramankostas@gumushane.edu.tr
+* **Görüşme Saatleri:**  Çarşamba  -tüm gün-
