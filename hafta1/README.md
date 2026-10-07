@@ -1,13 +1,14 @@
 # 1. Hafta: Veri Setlerini Tanıma ve Keşifsel Veri Analizi (EDA)
 
-Bu klasör, **YBS 301 Veri Madenciliği** dersinin 1. haftasına ait teorik ders materyallerini ve laboratuvar çalışma notlarını içermektedir.
+Bu klasör, **YBS 301 Veri Madenciliği** dersinin 1. haftasına ait teorik ders materyallerini, çalışma notlarını ve laboratuvar EDA rehberini içermektedir.
 
 ---
 
 ## 📌 Hafta İçeriği & Materyaller
 
 * 📑 **Ders Sunumu:** [ders1.pptx](ders1.pptx)
-
+* 📖 **Detaylı Ders Çalışma Notları:** [YBS301_Veri_Madenciligi_Calisma_Notlari_Hafta1.md](YBS301_Veri_Madenciligi_Calisma_Notlari_Hafta1.md)
+* 🐍 **Python, NumPy ve Pandas Pratik Alanı:** [Pratik & Alıştırma Rehberi](../pratik/readme.md)
 
 ---
 

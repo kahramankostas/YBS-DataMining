@@ -1,14 +1,19 @@
 # 2. Hafta: Veri Hazırlama ve Ön İşleme Uygulaması
 
-Bu klasör, **YBS 301 Veri Madenciliği** dersinin 2. haftasına ait ders sunumunu ve uygulamalı laboratuvar çalışmasını (**Gümüşhane Pestil & Köme Veri Seti**) barındırmaktadır.
+Bu klasör, **YBS 301 Veri Madenciliği** dersinin 2. haftasına ait teorik ders sunumunu, detaylı çalışma notlarını, süreç görsellerini ve uygulamalı laboratuvar çalışmasını (**Gümüşhane Pestil & Köme Veri Seti**) barındırmaktadır.
 
 ---
 
 ## 📌 Hafta İçeriği & Materyaller
 
 * 📑 **Ders Sunumu:** [2.pptx](2.pptx)
-* 📁 **Uygulama Veri Seti Dizin:** [gumushane_pestil_kome_veriseti/](gumushane_pestil_kome_veriseti/)
-* 📄 **Detaylı Öğrenci Rehberi:** [OGRENCI_OKU_BENI.md](gumushane_pestil_kome_veriseti/OGRENCI_OKU_BENI.md)
+* 📖 **Detaylı Ders Çalışma Notları:** [YBS301_Veri_Madenciligi_Calisma_Notlari_Hafta2.md](YBS301_Veri_Madenciligi_Calisma_Notlari_Hafta2.md)
+* 🖼️ **Görsel Rehberler:**
+  * 🔹 [Veri Hazırlama Süreç Şeması](Veri_Hazırlama.jpg)
+  * 🔹 [Değişken Tipleri ve Ölçekler Şeması](Veri_Hazırlama_ve_Değişken_Tipleri.jpg)
+* 📁 **Uygulama Veri Seti Dizini:** [gumushane_pestil_kome_veriseti/](gumushane_pestil_kome_veriseti/)
+* 📄 **Uygulama Görev ve Senaryo Kılavuzu:** [gumushane_pestil_kome_veriseti/readme.md](gumushane_pestil_kome_veriseti/readme.md)
+* 🐍 **Python, NumPy ve Pandas Pratik Alanı:** [Pratik & Alıştırma Rehberi](../pratik/readme.md)
 
 ---
 
@@ -42,4 +47,4 @@ Veriler 3 farklı sistemden gelmekte olup gürültülü, eksik ve tutarsız kay�
 5. **Veri Dönüştürme:** Min-Max ve Z-Score normalizasyonu, kategorik genelleştirme ve yeni özellik (feature engineering) türetme.
 
 > [!TIP]
-> Görevlerin detaylı açıklamaları, soru yönlendirmeleri ve teslim kriterleri için [`gumushane_pestil_kome_veriseti/OGRENCI_OKU_BENI.md`](gumushane_pestil_kome_veriseti/OGRENCI_OKU_BENI.md) dosyasını inceleyiniz.
+> Görevlerin detaylı açıklamaları, soru yönlendirmeleri ve teslim kriterleri için [`gumushane_pestil_kome_veriseti/readme.md`](gumushane_pestil_kome_veriseti/readme.md) dosyasını inceleyiniz.
