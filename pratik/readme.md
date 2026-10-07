@@ -14,17 +14,13 @@ Python programlama diline yeni başlayanlar veya temel konuları (değişkenler,
 
 **🎬 Python Sıfırdan Öğrenme Ders Videosu**
 
-<div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;">
-  <iframe
-    src="https://www.youtube.com/embed/_wZUNiGtkcw"
-    title="Python Sıfırdan Öğrenme Ders Videosu"
-    style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"
-    frameborder="0"
-    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-    allowfullscreen>
-  </iframe>
-</div>
----
+### 📺 1. Python Temelleri (Video Eğitimi)
+
+Python programlama diline yeni başlayanlar veya temel konuları (değişkenler, döngüler, fonksiyonlar, veri yapıları) tekrar etmek isteyen öğrenciler için önerilen video eğitimi:
+
+* 🎬 **Video Linki:** [Python Sıfırdan Öğrenme Ders Videosu (YouTube)](https://www.youtube.com/watch?v=_wZUNiGtkcw)
+
+[![](https://markdown-videos-api.jorgenkh.no/youtube/{_wZUNiGtkcw})](https://youtu.be/{_wZUNiGtkcw})
 
 ### 🔢 2. NumPy ile Sayısal Hesaplama
 * 📓 **Notebook Dosyası:** [`01_numpy.ipynb`](01_numpy.ipynb)
