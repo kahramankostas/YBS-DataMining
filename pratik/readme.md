@@ -12,15 +12,9 @@ Bu klasör, Veri Madenciliği dersinde öğrenilen teorik bilgileri (EDA, veri t
 
 Python programlama diline yeni başlayanlar veya temel konuları (değişkenler, döngüler, fonksiyonlar, veri yapıları) tekrar etmek isteyen öğrenciler için önerilen video eğitimi:
 
-**🎬 Python Sıfırdan Öğrenme Ders Videosu**
-
-### 📺 1. Python Temelleri (Video Eğitimi)
-
-Python programlama diline yeni başlayanlar veya temel konuları (değişkenler, döngüler, fonksiyonlar, veri yapıları) tekrar etmek isteyen öğrenciler için önerilen video eğitimi:
-
 * 🎬 **Video Linki:** [Python Sıfırdan Öğrenme Ders Videosu (YouTube)](https://www.youtube.com/watch?v=_wZUNiGtkcw)
 
-[![](https://markdown-videos-api.jorgenkh.no/youtube/{_wZUNiGtkcw})](https://youtu.be/{_wZUNiGtkcw})
+[![Python Sıfırdan Öğrenme Ders Videosu](https://markdown-videos-api.jorgenkh.no/youtube/_wZUNiGtkcw)](https://www.youtube.com/watch?v=_wZUNiGtkcw)
 
 ### 🔢 2. NumPy ile Sayısal Hesaplama
 * 📓 **Notebook Dosyası:** [`01_numpy.ipynb`](01_numpy.ipynb)
