@@ -246,4 +246,4 @@ Ekip no · Üyeler · Veri seti ve kaynağı
 
 **Ekip arkadaşım çalışmıyor, ne yapalım?** Ara kontrol haftasına kadar hocaya bildirin; hoca ekiple görüşür. Katkı tablosu ve soru-cevap performansı bireysel puana yansır.
 
-
+## [Grup Belirleme linki] (https://forms.gle/MbuVKtiCzo2kueRm9)
