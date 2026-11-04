@@ -1,7 +1,5 @@
 # Veri Madenciliği Dönem Projesi
 
-Nov 4, 2026 · @I am kahraman,
-
 ## Genel bakış
 
 Bu dönemin projesinde 4–5 kişilik ekipler, gerçek bir veri setiyle bir iş sorusunu baştan sona çözecek. Projeler **20 Aralık 2026, saat 23.59 (TSİ)**’ye kadar teslim edilecek ve **23 Aralık 2026** tarihindeki dersimizde sunulacak. Proje, dönem boyunca gördüğümüz veri madenciliği sürecinin tamamını kapsar: verinin yapısını ve türlerini anlamak, **NumPy** ve **pandas** ile veriyi okumak, temizlemek ve dönüştürmek, görselleştirmeyle keşfetmek, model kurmak ve sonucu doğru ölçmek. Bu süreçte derste kullandığımız araçlardan (NumPy, pandas, matplotlib, scikit-learn vb.) yararlanacaksınız.
@@ -248,4 +246,4 @@ Ekip no · Üyeler · Veri seti ve kaynağı
 
 **Ekip arkadaşım çalışmıyor, ne yapalım?** Ara kontrol haftasına kadar hocaya bildirin; hoca ekiple görüşür. Katkı tablosu ve soru-cevap performansı bireysel puana yansır.
 
-
+## [Grup Belirleme linki] (https://forms.gle/MbuVKtiCzo2kueRm9)
