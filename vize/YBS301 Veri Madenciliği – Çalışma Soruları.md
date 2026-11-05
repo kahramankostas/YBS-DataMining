@@ -1,6 +1,5 @@
 # YBS301 Veri Madenciliği – Çalışma Soruları
 
-Oct 22, 2026 · @I am kahraman,
 
 ## Bu set nasıl kullanılır?
 
