@@ -12,7 +12,9 @@
   <img src="https://img.shields.io/badge/scikit--learn-Data%20Mining-F7931E?style=flat-square&logo=scikit-learn&logoColor=white" alt="scikit-learn">
 </p>
 
-Bu depo, **Gümüşhane Üniversitesi İktisadi ve İdari Bilimler Fakültesi Yönetim Bilişim Sistemleri Bölümü** bünyesinde yürütülen **YBS 301 Veri Madenciliği** dersine ait haftalık ders sunumlarını, teorik çalışma notlarını, adım adım laboratuvar uygulama rehberlerini, etkileşimli Jupyter Notebook'larını, vize çalışma sorularını, dönem projesi yönergelerini ve gerçek dünya uygulama veri setlerini içermektedir.
+Bu depo, **Gümüşhane Üniversitesi İktisadi ve İdari Bilimler Fakültesi Yönetim Bilişim Sistemleri Bölümü** bünyesinde yürütülen **YBS 301 Veri Madenciliği** dersine ait haftalık ders sunumlarını, teorik çalışma notlarını, etkileşimli görselleştirme/öğrenme araçlarını, adım adım laboratuvar uygulama rehberlerini, Jupyter Notebook'larını, vize çalışma sorularını, dönem projesi yönergelerini ve gerçek dünya uygulama veri setlerini içermektedir.
+
+> 🌐 **Ders Web Sayfası:** [`index.html`](index.html) *(GitHub Pages: `https://kahramankostas.github.io/YBS-DataMining/`)*
 
 ---
 
@@ -57,7 +59,7 @@ flowchart LR
 | Modül | Açıklama | Bağlantı |
 | :--- | :--- | :---: |
 | 🎓 **Dönem Projesi** | 4–5 kişilik ekipler halinde, 12 farklı gerçek dünya iş problemi ve veri seti üzerinden uçtan uca veri madenciliği ve makine öğrenmesi projesi. | 📄 [Proje Yönergesi](odev/Veri%20Madencili%C4%9Fi%20D%C3%B6nem%20Projesi.md) |
-| 📝 **Vize Çalışma Soruları** | Hafta 1-2 teorik konuları ile NumPy, pandas ve Matplotlib uygulamalarını kapsayan **245 soruluk** (çoktan seçmeli, boşluk doldurma, doğru/yanlış, kod çıktısı) çözümlü çalışma seti. | 📖 [Çalışma Soruları & Cevap Anahtarı](vize/YBS301%20Veri%20Madencili%C4%9Fi%20%E2%80%93%20%C3%87al%C4%B1%C5%9Fma%20Sorular%C4%B1.md) |
+| 📝 **Vize Çalışma Soruları** | Hafta 1-2 teorik konuları ile NumPy, pandas ve Matplotlib uygulamalarını kapsayan **245 soruluk** (çoktan seçmeli, boşluk doldurma, doğru/yanlış, kod çıktısı) çözümlü çalışma seti. | 📖 [Markdown](vize/YBS301%20Veri%20Madencili%C4%9Fi%20%E2%80%93%20%C3%87al%C4%B1%C5%9Fma%20Sorular%C4%B1.md) / 📄 [PDF](vize/YBS301%20Veri%20Madencili%C4%9Fi%20%E2%80%93%20%C3%87al%C4%B1%C5%9Fma%20Sorular%C4%B1.pdf) |
 
 ---
 
@@ -74,12 +76,12 @@ Aşağıdaki tablodan ilgili haftaya tıklayarak sunumlara, çalışma notların
 | **04** | [pandas ile Veri Manipülasyonu ve Matplotlib Görselleştirme](hafta4/README.md) | 📑 [4.pptx](hafta4/4.pptx) | 📓 [02_pandas.ipynb](hafta4/02_pandas.ipynb) | 📓 [03_matplotlib.ipynb](hafta4/03_matplotlib.ipynb) / 📁 [Veri Seti](hafta4/gumushane_pestil_kome_veriseti/readme.md) | ✅ Tamamlandı |
 | **05–06** | Birliktelik Kuralları & Sınıflandırma Temelleri | — | — | ⏳ *Sınıf İçi Uygulamalar* | ✅ Tamamlandı |
 | **07** | [Matplotlib ile Veri Görselleştirme & scikit-learn ile Makine Öğrenmesi](hafta7/README.md) | 📑 [Matplotlib](hafta7/Matplotlib_Veri_Gorsellestirme.pptx) / 📑 [scikit-learn](hafta7/scikit-learn_Makine_Ogrenmesi.pptx) | 📓 [03_matplotlib.ipynb](hafta7/03_matplotlib.ipynb) | 📓 [04_scikit_learn.ipynb](hafta7/04_scikit_learn.ipynb) | ✅ Tamamlandı |
-| 📝 **Vize** | [YBS301 Veri Madenciliği Vize Çalışma Soruları](vize/YBS301%20Veri%20Madencili%C4%9Fi%20%E2%80%93%20%C3%87al%C4%B1%C5%9Fma%20Sorular%C4%B1.md) | — | 📖 [245 Çözümlü Soru](vize/YBS301%20Veri%20Madencili%C4%9Fi%20%E2%80%93%20%C3%87al%C4%B1%C5%9Fma%20Sorular%C4%B1.md) | 📝 4 Konu / 4 Soru Tipi + Cevap Anahtarı | 🎯 Aktif |
+| 📝 **Vize** | [YBS301 Veri Madenciliği Vize Çalışma Soruları](vize/YBS301%20Veri%20Madencili%C4%9Fi%20%E2%80%93%20%C3%87al%C4%B1%C5%9Fma%20Sorular%C4%B1.md) | — | 📖 [245 Çözümlü Soru (MD)](vize/YBS301%20Veri%20Madencili%C4%9Fi%20%E2%80%93%20%C3%87al%C4%B1%C5%9Fma%20Sorular%C4%B1.md) | 📄 [PDF Versiyonu](vize/YBS301%20Veri%20Madencili%C4%9Fi%20%E2%80%93%20%C3%87al%C4%B1%C5%9Fma%20Sorular%C4%B1.pdf) | ✅ Tamamlandı |
+| **08** | 📝 **Ara Sınav (Vize) Haftası** | — | — | 🎯 *Değerlendirme Dönemi* | ✅ Tamamlandı |
+| **09** | [Makine Öğrenmesi Algoritmaları, Değerlendirme Metrikleri & Etkileşimli Oyun Alanı](hafta9/README.md) | 📑 [ML Partisi](hafta9/ML_Algoritmalari_Tanisma_Partisi.pptx) / 📑 [scikit-learn](hafta9/scikit-learn_Makine_Ogrenmesi.pptx) | 📄 [Metrikler PDF](hafta9/BasiteAccuracyPrecisionRecallveF1Score.pdf) / 🎮 [Animasyonlu Metrikler](hafta9/Accuracy_Precision_Recall_F1_Animasyonlu.html) | 📓 [04_scikit_learn.ipynb](hafta9/04_scikit_learn.ipynb) / 🕹️ [ML Oyun Alanı](hafta9/ML_Oyun_Alani.html) | ✅ Aktif |
 | 🎓 **Ödev** | [Veri Madenciliği Dönem Projesi](odev/Veri%20Madencili%C4%9Fi%20D%C3%B6nem%20Projesi.md) | — | 📋 [Proje Şartnamesi](odev/Veri%20Madencili%C4%9Fi%20D%C3%B6nem%20Projesi.md) | 📊 12 Farklı Vaka & Veri Seti Havuzu | ⏳ 20 Aralık 2026 |
-| **08** | Kümeleme Analizi: K-Ortalamalar (K-Means) ve Hiyerarşik Kümeleme | — | — | ⏳ *Planlandı* | 🔄 Planlandı |
-| **09** | Yoğunluk Tabanlı Kümeleme (DBSCAN) ve Anomali Analizi | — | — | ⏳ *Planlandı* | 🔄 Planlandı |
-| **10** | Boyut İndirgeme ve Temel Bileşenler Analizi (PCA) | — | — | ⏳ *Planlandı* | 🔄 Planlandı |
-| **11** | Model Başarımı ve Değerlendirme (Confusion Matrix, ROC-AUC, CV) | — | — | ⏳ *Planlandı* | 🔄 Planlandı |
+| **10** | Kümeleme Analizi: K-Ortalamalar (K-Means) ve Hiyerarşik Kümeleme | — | — | ⏳ *Planlandı* | 🔄 Planlandı |
+| **11** | Boyut İndirgeme ve Temel Bileşenler Analizi (PCA) | — | — | ⏳ *Planlandı* | 🔄 Planlandı |
 | **12** | Topluluk Öğrenmesi (Ensemble Learning: Random Forest, Gradient Boosting) | — | — | ⏳ *Planlandı* | 🔄 Planlandı |
 | **13–14**| 🚀 **Dönem Sonu Proje Sunumları ve Vaka Savunmaları** | — | — | 🎯 *Final Değerlendirmesi (23 Aralık 2026)* | ⏳ Proje |
 
@@ -129,6 +131,14 @@ YBS-DataMining/
 │   ├── 03_matplotlib.ipynb            # Matplotlib Uygulamalı Notebook
 │   ├── 04_scikit_learn.ipynb          # scikit-learn Makine Öğrenmesi Notebook
 │   └── ziyaretci.png                  # Örnek Çıktı Görseli
+├── hafta9/                            # 9. Hafta: ML Algoritmaları, Metrikler & Etkileşimli Araçlar
+│   ├── README.md                      # 9. Hafta Yönergesi
+│   ├── ML_Algoritmalari_Tanisma_Partisi.pptx # ML Algoritmaları Sunumu
+│   ├── scikit-learn_Makine_Ogrenmesi.pptx  # scikit-learn Makine Öğrenmesi Sunumu
+│   ├── 04_scikit_learn.ipynb          # scikit-learn Uygulama Notebook'u
+│   ├── BasiteAccuracyPrecisionRecallveF1Score.pdf # Metrikler Özet PDF
+│   ├── Accuracy_Precision_Recall_F1_Animasyonlu.html # Animasyonlu Metrikler Aracı
+│   └── ML_Oyun_Alani.html             # Etkileşimli ML Oyun Alanı
 ├── odev/                              # Dönem Projesi ve Görev Tanımları
 │   └── Veri Madenciliği Dönem Projesi.md # Kapsamlı Proje Yönergesi, Kriterler ve Konu Havuzu
 ├── pratik/                            # Temel Programlama ve Analitik Pratik Alanı
@@ -136,7 +146,10 @@ YBS-DataMining/
 │   ├── 01_numpy.ipynb                 # NumPy ile Sayısal Hesaplama Notebook'u
 │   └── 02_pandas.ipynb                # pandas ile Veri Analizi Notebook'u
 ├── vize/                              # Sınav Hazırlık Materyalleri
-│   └── YBS301 Veri Madenciliği – Çalışma Soruları.md # 245 Çözümlü Çalışma Sorusu ve Cevap Anahtarı
+│   ├── YBS301 Veri Madenciliği – Çalışma Soruları.md  # 245 Çözümlü Çalışma Sorusu (Markdown)
+│   └── YBS301 Veri Madenciliği – Çalışma Soruları.pdf # 245 Çözümlü Çalışma Sorusu (PDF)
+├── index.html                         # Dersin Resmi GitHub Pages Web Sayfası
+├── moodle_sablonlari.html             # Moodle İçin Hazır HTML Aktivite Kartları
 └── readme.md                          # Ana Depo Bilgilendirme Sayfası
 ```
 

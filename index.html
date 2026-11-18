@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+<html lang="tr" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>YBS 301 - Veri Madenciliği | Gümüşhane Üniversitesi</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Plus+Jakarta+Sans:wght@700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --surface: #ffffff;
+      --surface-alt: #f1f5f9;
+      --text: #0f172a;
+      --text-muted: #475569;
+      --border: #e2e8f0;
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --primary-soft: #eff6ff;
+      --accent: #7c3aed;
+      --success: #059669;
+      --warning: #d97706;
+      --danger: #e11d48;
+      --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.06);
+      --shadow-md: 0 10px 25px -5px rgba(15, 23, 42, 0.08);
+      --radius: 14px;
+    }
+
+    [data-theme="dark"] {
+      --bg: #0b1120;
+      --surface: #111827;
+      --surface-alt: #1e293b;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --border: #1e293b;
+      --primary: #3b82f6;
+      --primary-hover: #60a5fa;
+      --primary-soft: rgba(59, 130, 246, 0.14);
+      --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4);
+      --shadow-md: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      transition: background-color 0.25s ease, color 0.25s ease;
+    }
+
+    /* Navbar */
+    .navbar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+    [data-theme="dark"] .navbar {
+      background: rgba(17, 24, 39, 0.85);
+    }
+    .nav-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0.85rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 800;
+      font-size: 1.15rem;
+      color: var(--text);
+      text-decoration: none;
+    }
+    .brand-badge {
+      background: linear-gradient(135deg, #2563eb, #7c3aed);
+      color: #fff;
+      padding: 0.25rem 0.6rem;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      letter-spacing: 0.5px;
+    }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 1.4rem;
+      list-style: none;
+    }
+    .nav-links a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--primary); }
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .theme-btn {
+      background: var(--surface-alt);
+      border: 1px solid var(--border);
+      color: var(--text);
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.05rem;
+      transition: transform 0.15s;
+    }
+    .theme-btn:hover { transform: scale(1.05); }
+    .btn-github {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      background: var(--text);
+      color: var(--bg);
+      padding: 0.5rem 0.95rem;
+      border-radius: 10px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: opacity 0.2s;
+    }
+    .btn-github:hover { opacity: 0.88; }
+
+    /* Hero */
+    .hero {
+      background: radial-gradient(circle at top right, rgba(124, 58, 237, 0.12), transparent 45%),
+                  radial-gradient(circle at top left, rgba(37, 99, 235, 0.14), transparent 45%);
+      border-bottom: 1px solid var(--border);
+      padding: 4.5rem 1.5rem 3.5rem;
+    }
+    .hero-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1.25fr 0.95fr;
+      gap: 3rem;
+      align-items: center;
+    }
+    .uni-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: var(--primary-soft);
+      color: var(--primary);
+      padding: 0.35rem 0.9rem;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      margin-bottom: 1.1rem;
+    }
+    .hero h1 {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: clamp(2.1rem, 4vw, 3.1rem);
+      line-height: 1.15;
+      margin-bottom: 1rem;
+      letter-spacing: -0.02em;
+    }
+    .hero p {
+      color: var(--text-muted);
+      font-size: 1.06rem;
+      margin-bottom: 1.8rem;
+      max-width: 600px;
+    }
+    .hero-ctas {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.85rem;
+      margin-bottom: 2rem;
+    }
+    .btn-primary {
+      background: var(--primary);
+      color: #fff;
+      padding: 0.75rem 1.35rem;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+      transition: background 0.2s, transform 0.15s;
+    }
+    .btn-primary:hover { background: var(--primary-hover); transform: translateY(-1px); }
+    .btn-secondary {
+      background: var(--surface);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 0.75rem 1.35rem;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: border-color 0.2s, transform 0.15s;
+    }
+    .btn-secondary:hover { border-color: var(--primary); transform: translateY(-1px); }
+
+    .info-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      box-shadow: var(--shadow-md);
+    }
+    .info-card h3 {
+      font-size: 0.95rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      margin-bottom: 1rem;
+    }
+    .info-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.9rem;
+    }
+    .info-item {
+      background: var(--surface-alt);
+      padding: 0.75rem 0.9rem;
+      border-radius: 10px;
+    }
+    .info-item .label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      display: block;
+    }
+    .info-item .val {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    /* KDD Pipeline Strip */
+    .pipeline-strip {
+      max-width: 1200px;
+      margin: -1.6rem auto 2.5rem;
+      padding: 0 1.5rem;
+      position: relative;
+      z-index: 10;
+    }
+    .pipeline-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.1rem 1.4rem;
+      box-shadow: var(--shadow-md);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.6rem;
+    }
+    .step-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      font-size: 0.85rem;
+      font-weight: 600;
+      padding: 0.4rem 0.75rem;
+      border-radius: 8px;
+      background: var(--surface-alt);
+    }
+    .step-arrow { color: var(--text-muted); font-weight: bold; }
+
+    /* Sections */
+    .section {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 3rem 1.5rem;
+    }
+    .section-header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-bottom: 1.8rem;
+    }
+    .section-title {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 1.7rem;
+      font-weight: 800;
+    }
+    .section-sub {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      margin-top: 0.25rem;
+    }
+
+    /* Interactive Tools Spotlight */
+    .spotlight-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(310px, 1fr));
+      gap: 1.25rem;
+    }
+    .spotlight-card {
+      background: linear-gradient(135deg, var(--surface) 0%, var(--primary-soft) 100%);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .spotlight-card:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-md);
+    }
+    .tag {
+      display: inline-block;
+      font-size: 0.74rem;
+      font-weight: 700;
+      padding: 0.22rem 0.65rem;
+      border-radius: 999px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 0.75rem;
+    }
+    .tag-live { background: #dcfce7; color: #166534; }
+    .tag-exam { background: #ffe4e6; color: #9f1239; }
+    .tag-proj { background: #ede9fe; color: #5b21b6; }
+    [data-theme="dark"] .tag-live { background: rgba(22, 163, 74, 0.2); color: #86efac; }
+    [data-theme="dark"] .tag-exam { background: rgba(225, 29, 72, 0.2); color: #fda4af; }
+    [data-theme="dark"] .tag-proj { background: rgba(124, 58, 237, 0.2); color: #c4b5fd; }
+
+    /* Filters & Search */
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+    .filter-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+    .filter-btn {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      padding: 0.48rem 0.95rem;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .filter-btn.active, .filter-btn:hover {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+    }
+    .search-box {
+      padding: 0.52rem 1rem;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      font-size: 0.9rem;
+      min-width: 240px;
+      outline: none;
+    }
+    .search-box:focus { border-color: var(--primary); }
+
+    /* Week Cards */
+    .week-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+      gap: 1.3rem;
+    }
+    .week-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.45rem;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .week-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+    .week-card.hidden { display: none; }
+    .week-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.7rem;
+    }
+    .week-num {
+      font-size: 0.78rem;
+      font-weight: 700;
+      padding: 0.25rem 0.7rem;
+      border-radius: 8px;
+      background: var(--primary-soft);
+      color: var(--primary);
+    }
+    .status-badge {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--success);
+    }
+    .status-planned { color: var(--text-muted); }
+    .week-card h3 {
+      font-size: 1.12rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      line-height: 1.35;
+    }
+    .week-card p {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      margin-bottom: 1.15rem;
+    }
+    .btn-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+    .mat-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.78rem;
+      font-weight: 600;
+      padding: 0.42rem 0.72rem;
+      border-radius: 8px;
+      text-decoration: none;
+      transition: opacity 0.18s, transform 0.12s;
+    }
+    .mat-btn:hover { opacity: 0.9; transform: translateY(-1px); }
+    .btn-pptx { background: #fff7ed; color: #c2410c; border: 1px solid #fed7aa; }
+    .btn-md { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
+    .btn-nb { background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0; }
+    .btn-colab { background: #fefce8; color: #a16207; border: 1px solid #fde047; }
+    .btn-html { background: #f3e8ff; color: #6d28d9; border: 1px solid #ddd6fe; }
+    .btn-pdf { background: #fff1f2; color: #be123c; border: 1px solid #fecdd3; }
+    .btn-vid { background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; }
+
+    [data-theme="dark"] .btn-pptx { background: rgba(234, 88, 12, 0.15); color: #fdba74; border-color: rgba(234, 88, 12, 0.3); }
+    [data-theme="dark"] .btn-md { background: rgba(37, 99, 235, 0.15); color: #93c5fd; border-color: rgba(37, 99, 235, 0.3); }
+    [data-theme="dark"] .btn-nb { background: rgba(5, 150, 105, 0.15); color: #6ee7b7; border-color: rgba(5, 150, 105, 0.3); }
+    [data-theme="dark"] .btn-colab { background: rgba(202, 138, 4, 0.15); color: #fde047; border-color: rgba(202, 138, 4, 0.3); }
+    [data-theme="dark"] .btn-html { background: rgba(124, 58, 237, 0.15); color: #c4b5fd; border-color: rgba(124, 58, 237, 0.3); }
+    [data-theme="dark"] .btn-pdf { background: rgba(225, 29, 72, 0.15); color: #fda4af; border-color: rgba(225, 29, 72, 0.3); }
+    [data-theme="dark"] .btn-vid { background: rgba(220, 38, 38, 0.15); color: #fca5a5; border-color: rgba(220, 38, 38, 0.3); }
+
+    /* Setup Code Box */
+    .setup-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.5rem;
+    }
+    .code-box {
+      background: #0f172a;
+      color: #e2e8f0;
+      padding: 1rem 1.15rem;
+      border-radius: 10px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.82rem;
+      overflow-x: auto;
+      position: relative;
+      margin-top: 0.75rem;
+    }
+    .copy-btn {
+      position: absolute;
+      top: 0.6rem;
+      right: 0.6rem;
+      background: #1e293b;
+      color: #f8fafc;
+      border: 1px solid #334155;
+      padding: 0.25rem 0.6rem;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      cursor: pointer;
+    }
+    .copy-btn:hover { background: #334155; }
+
+    /* Footer */
+    footer {
+      border-top: 1px solid var(--border);
+      background: var(--surface);
+      padding: 2.5rem 1.5rem;
+      margin-top: 3rem;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+    footer a { color: var(--primary); text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+
+    @media (max-width: 860px) {
+      .hero-inner { grid-template-columns: 1fr; }
+      .nav-links { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="#" class="brand">
+        <span class="brand-badge">YBS 301</span>
+        <span>Veri Madenciliği</span>
+      </a>
+      <ul class="nav-links">
+        <li><a href="#etkilesimli">Etkileşimli Araçlar</a></li>
+        <li><a href="#mufredat">Müfredat</a></li>
+        <li><a href="#vize-proje">Vize &amp; Proje</a></li>
+        <li><a href="#kurulum">Kurulum</a></li>
+      </ul>
+      <div class="nav-actions">
+        <button class="theme-btn" id="themeToggle" title="Tema Değiştir">🌙</button>
+        <a href="https://github.com/kahramankostas/YBS-DataMining" target="_blank" class="btn-github">
+          <span>GitHub Repo</span> ↗
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <header class="hero">
+    <div class="hero-inner">
+      <div>
+        <div class="uni-pill">🎓 Gümüşhane Üniversitesi · İİBF · Yönetim Bilişim Sistemleri</div>
+        <h1>Veri Madenciliği ile Ham Veriden İş Değerine</h1>
+        <p>
+          YBS 301 dersi kapsamında KDD sürecini, veri temizleme ve ön işleme tekniklerini,
+          keşifsel veri analizini ve Python (NumPy, pandas, Matplotlib, scikit-learn) ile
+          uygulamalı makine öğrenmesi modellerini adım adım öğrenin.
+        </p>
+        <div class="hero-ctas">
+          <a href="#mufredat" class="btn-primary">📚 Haftalık Derslere Git</a>
+          <a href="hafta9/ML_Oyun_Alani.html" target="_blank" class="btn-secondary">🕹️ ML Oyun Alanını Aç</a>
+        </div>
+      </div>
+
+      <div class="info-card">
+        <h3>📌 Ders Künyesi</h3>
+        <div class="info-grid">
+          <div class="info-item">
+            <span class="label">Ders Sorumlusu</span>
+            <span class="val">Dr. Kahraman Koştaş</span>
+          </div>
+          <div class="info-item">
+            <span class="label">Dönem</span>
+            <span class="val">2026–2027 Güz</span>
+          </div>
+          <div class="info-item">
+            <span class="label">Gün &amp; Laboratuvar</span>
+            <span class="val">Çarşamba · LAB 2</span>
+          </div>
+          <div class="info-item">
+            <span class="label">Ofis Saatleri</span>
+            <span class="val">Çarşamba (Tüm Gün)</span>
+          </div>
+          <div class="info-item">
+            <span class="label">Proje Teslimi</span>
+            <span class="val">20 Aralık 2026</span>
+          </div>
+          <div class="info-item">
+            <span class="label">Proje Sunumları</span>
+            <span class="val">23 Aralık 2026</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- KDD Pipeline -->
+  <div class="pipeline-strip">
+    <div class="pipeline-box">
+      <span class="step-pill">1️⃣ Ham Veri</span>
+      <span class="step-arrow">→</span>
+      <span class="step-pill">2️⃣ Temizleme &amp; Ön İşleme</span>
+      <span class="step-arrow">→</span>
+      <span class="step-pill">3️⃣ Entegrasyon &amp; İndirgeme</span>
+      <span class="step-arrow">→</span>
+      <span class="step-pill">4️⃣ Görselleştirme</span>
+      <span class="step-arrow">→</span>
+      <span class="step-pill">5️⃣ Makine Öğrenmesi</span>
+      <span class="step-arrow">→</span>
+      <span class="step-pill">6️⃣ Karar Desteği</span>
+    </div>
+  </div>
+
+  <!-- Spotlight: Interactive Tools & Exam/Project -->
+  <section class="section" id="etkilesimli">
+    <div class="section-header">
+      <div>
+        <h2 class="section-title">🚀 Etkileşimli Araçlar, Vize &amp; Dönem Projesi</h2>
+        <p class="section-sub">Tarayıcıda doğrudan çalışan simülasyonlar, sınav hazırlık seti ve proje yönergesi.</p>
+      </div>
+    </div>
+
+    <div class="spotlight-grid" id="vize-proje">
+      <!-- Tool 1 -->
+      <div class="spotlight-card">
+        <div>
+          <span class="tag tag-live">Etkileşimli Laboratuvar · Hafta 9</span>
+          <h3>🕹️ ML Oyun Alanı</h3>
+          <p style="font-size: 0.9rem; color: var(--text-muted); margin: 0.6rem 0 1.2rem;">
+            Farklı makine öğrenmesi algoritmalarının karar sınırlarını ve davranışlarını tarayıcı üzerinde canlı olarak deneyimleyin.
+          </p>
+        </div>
+        <div class="btn-group">
+          <a href="hafta9/ML_Oyun_Alani.html" target="_blank" class="mat-btn btn-html">🌐 Tarayıcıda Aç</a>
+          <a href="https://github.com/kahramankostas/YBS-DataMining/blob/main/hafta9/ML_Oyun_Alani.html" target="_blank" class="mat-btn btn-md">📄 GitHub Kaynağı</a>
+        </div>
+      </div>
+
+      <!-- Tool 2 -->
+      <div class="spotlight-card">
+        <div>
+          <span class="tag tag-live">Animasyonlu Anlatım · Hafta 9</span>
+          <h3>📊 Accuracy, Precision, Recall &amp; F1</h3>
+          <p style="font-size: 0.9rem; color: var(--text-muted); margin: 0.6rem 0 1.2rem;">
+            Karmaşıklık matrisi (Confusion Matrix) ve sınıflandırma başarı metriklerini animasyonlarla adım adım keşfedin.
+          </p>
+        </div>
+        <div class="btn-group">
+          <a href="hafta9/Accuracy_Precision_Recall_F1_Animasyonlu.html" target="_blank" class="mat-btn btn-html">🌐 Animasyonu Başlat</a>
+          <a href="https://github.com/kahramankostas/YBS-DataMining/blob/main/hafta9/BasiteAccuracyPrecisionRecallveF1Score.pdf" target="_blank" class="mat-btn btn-pdf">📄 Özet PDF</a>
+        </div>
+      </div>
+
+      <!-- Exam -->
+      <div class="spotlight-card">
+        <div>
+          <span class="tag tag-exam">Sınav Hazırlık · 245 Soru</span>
+          <h3>📝 Vize Çalışma Soruları</h3>
+          <p style="font-size: 0.9rem; color: var(--text-muted); margin: 0.6rem 0 1.2rem;">
+            Hafta 1–2 teorisi, NumPy, pandas ve Matplotlib konularını kapsayan çoktan seçmeli, boşluk doldurma ve kod soruları.
+          </p>
+        </div>
+        <div class="btn-group">
+          <a href="https://github.com/kahramankostas/YBS-DataMining/blob/main/vize/YBS301%20Veri%20Madencili%C4%9Fi%20%E2%80%93%20%C3%87al%C4%B1%C5%9Fma%20Sorular%C4%B1.md" target="_blank" class="mat-btn btn-md">📖 Markdown Okuma</a>
+          <a href="https://github.com/kahramankostas/YBS-DataMining/blob/main/vize/YBS301%20Veri%20Madencili%C4%9Fi%20%E2%80%93%20%C3%87al%C4%B1%C5%9Fma%20Sorular%C4%B1.pdf" target="_blank" class="mat-btn btn-pdf">📄 PDF İndir</a>
+        </div>
+      </div>
+
+      <!-- Project -->
+      <div class="spotlight-card">
+        <div>
+          <span class="tag tag-proj">Dönem Ödevi · 4–5 Kişilik Ekipler</span>
+          <h3>🎓 Veri Madenciliği Dönem Projesi</h3>
+          <p style="font-size: 0.9rem; color: var(--text-muted); margin: 0.6rem 0 1.2rem;">
+            12 gerçek dünya iş sorusu havuzu, değerlendirme kriterleri, zorunlu modelleme kapsamı ve teslim takvimi.
+          </p>
+        </div>
+        <div class="btn-group">
+          <a href="https://github.com/kahramankostas/YBS-DataMining/blob/main/odev/Veri%20Madencili%C4%9Fi%20D%C3%B6nem%20Projesi.md" target="_blank" class="mat-btn btn-md">📋 Proje Yönergesini Oku</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Curriculum -->
+  <section class="section" id="mufredat">
+    <div class="section-header">
+      <div>
+        <h2 class="section-title">📅 Haftalık Müfredat ve Ders Materyalleri</h2>
+        <p class="section-sub">Sunumlara, çalışma notlarına, GitHub üzerindeki Jupyter Notebook'lara ve Colab bağlantılarına tek tıkla ulaşın.</p>
+      </div>
+    </div>
+
+    <div class="controls">
+      <div class="filter-tabs">
+        <button class="filter-btn active" data-filter="all">Tümü</button>
+        <button class="filter-btn" data-filter="completed">Tamamlananlar</button>
+        <button class="filter-btn" data-filter="notebook">Notebook İçerenler</button>
+        <button class="filter-btn" data-filter="planned">Planlananlar</button>
+      </div>
+      <input type="text" id="searchInput" class="search-box" placeholder="🔍 Konu veya kütüphane ara (örn: pandas, ML)...">
+    </div>
+
+    <div class="week-grid" id="weekGrid">
+      <!-- Pratik -->
+      <article class="week-card" data-category="completed notebook">
+        <div>
+          <div class="week-head">
+            <span class="week-num">🐍 Pratik Alanı</span>
+            <span class="status-badge">● Aktif</span>
+          </div>
+          <h3>Python, NumPy ve Pandas Temelleri</h3>
+          <p>Python programlama temelleri, NumPy dizileriyle vektörel hesaplamalar ve pandas DataFrame manipülasyonu alıştırmaları.</p>
+        </div>
+        <div class="btn-group">
+          <a href="https://www.youtube.com/watch?v=_wZUNiGtkcw" target="_blank" class="mat-btn btn-vid">🎬 Video</a>
+          <a href="https://github.com/kahramankostas/YBS-DataMining/blob/main/pratik/readme.md" target="_blank" class="mat-btn btn-md">📖 Rehber</a>
+          <a href="https://github.com/kahramankostas/YBS-DataMining/blob/main/pratik/01_numpy.ipynb" target="_blank" class="mat-btn btn-nb">📓 NumPy</a>
+          <a href="https://colab.research.google.com/github/kahramankostas/YBS-DataMining/blob/main/pratik/01_numpy.ipynb" target="_blank" class="mat-btn btn-colab">⚡ Colab</a>
+          <a href="https://github.com/kahramankostas/YBS-DataMining/blob/main/pratik/02_pandas.ipynb" target="_blank" class="mat-btn btn-nb">📓 Pandas</a>
+        </div>
+      </article>
+
+      <!-- Hafta 1 -->
+      <article class="week-card" data-category="completed">
+        <div>
+          <div class="week-head">
+            <span class="week-num">1. Hafta</span>
+            <span class="status-badge">✓ Tamamlandı</span>
+          </div>
+          <h3>Veri Setlerini Tanıma ve Keşifsel Veri Analizi (EDA)</h3>
+          <p>Veri madenciliğine giriş, DIKW piramidi, KDD süreci ve 7 temel açık veri seti üzerinde keşifsel veri analizi.</p>
+        </div>
+        <div class="btn-group">
+          <a href="https://github.com/kahramankostas/YBS-DataMining/blob/main/hafta1/ders1.pptx" target="_blank" class="mat-btn btn-pptx">📑 Sunum</a>
+          <a href="https://github.com/kahramankostas/YBS-DataMining/blob/main/hafta1/YBS301_Veri_Madenciligi_Calisma_Notlari_Hafta1.md" target="_blank" class="mat-btn btn-md">📖 Çalışma Notları</a>
+          <a href="https://github.com/kahramankostas/YBS-DataMining/blob/main/hafta1/README.md" target="_blank" class="mat-btn btn-md">📋 EDA Rehberi</a>
+        </div>
+      </article>
+
+      <!-- Hafta 2 -->
+      <article class="week-card" data-category="completed">
+        <div>
+          <div class="week-head">
+            <span class="week-num">2. Hafta</span>
+            <span class="status-badge">✓ Tamamlandı</span>
+          </div>
+          <h3>Veri Hazırlama ve Ön İşleme: Teori &amp; Vaka Tasarımı</h3>
+          <p>Eksik/gürültülü veri temizleme, varlık çözümleme, ölçek türleri ve Gümüşhane Pestil &amp; Köme veri seti kurgusu.</p>
+        </div>
+        <div class="btn-group">
+          <a href="https://github.com/kahramankostas/YBS-DataMining/blob/main/hafta2/2.pptx" target="_blank" class="mat-btn btn-pptx">📑 Sunum</a>
+          <a href="https://github.com/kahramankostas/YBS-DataMining/blob/main/hafta2/YBS301_Veri_Madenciligi_Calisma_Notlari_Hafta2.md" target="_blank" class="mat-btn btn-md">📖 Çalışma Notları</a>
+          <a href="https://github.com/kahramankostas/YBS-DataMining/blob/main/hafta2/gumushane_pestil_kome_veriseti/readme.md" target="_blank" class="mat-btn btn-md">📁 Vaka Veri Seti</a>
+        </div>
+      </article>
+
+      <!-- Hafta 3 -->
+      <article class="week-card" data-category="completed notebook">
+        <div>
+          <div class="week-head">
+            <span class="week-num">3. Hafta</span>
+            <span class="status-badge">✓ Tamamlandı</span>
+          </div>
+          <h3>Veri Hazırlama: Adım Adım Laboratuvar Uygulaması</h3>
+          <p>4 farklı kaynaktan gelen dağınık verilerin temizlenmesi, birleştirilmesi, veri küpü (roll-up) ve normalizasyon uygulaması.</p>
+        </div>
+        <div class="btn-group">
+          <a href="https://github.com/kahramankostas/YBS-DataMining/blob/main/hafta3/3.pptx" target="_blank" class="mat-btn btn-pptx">📑 Sunum</a>
+          <a href="https://github.com/kahramankostas/YBS-DataMining/blob/main/hafta3/gumushane_pestil_kome_veriseti/gumushane_veri_hazirlama_uygulamasi.ipynb" target="_blank" class="mat-btn btn-nb">📓 Uygulama Defteri</a>
+          <a href="https://colab.research.google.com/github/kahramankostas/YBS-DataMining/blob/main/hafta3/gumushane_pestil_kome_veriseti/gumushane_veri_hazirlama_uygulamasi.ipynb" target="_blank" class="mat-btn btn-colab">⚡ Colab'da Aç</a>
+        </div>
+      </article>
+
+      <!-- Hafta 4 -->
+      <article class="week-card" data-category="completed notebook">
+        <div>
+          <div class="week-head">
+            <span class="week-num">4. Hafta</span>
+            <span class="status-badge">✓ Tamamlandı</span>
+          </div>
+          <h3>pandas ile Veri Analizi ve Matplotlib Görselleştirme</h3>
+          <p>İleri seviye pandas veri manipülasyonu, gruplama, pivot tablolar ve Matplotlib ile veri görselleştirmeye giriş.</p>
+        </div>
+        <div class="btn-group">
+          <a href="https://github.com/kahramankostas/YBS-DataMining/blob/main/hafta4/4.pptx" target="_blank" class="mat-btn btn-pptx">📑 Sunum</a>
+          <a href="https://github.com/kahramankostas/YBS-DataMining/blob/main/hafta4/02_pandas.ipynb" target="_blank" class="mat-btn btn-nb">📓 02_pandas</a>
+          <a href="https://github.com/kahramankostas/YBS-DataMining/blob/main/hafta4/03_matplotlib.ipynb" target="_blank" class="mat-btn btn-nb">📓 03_matplotlib</a>
+          <a href="https://colab.research.google.com/github/kahramankostas/YBS-DataMining/blob/main/hafta4/02_pandas.ipynb" target="_blank" class="mat-btn btn-colab">⚡ Colab</a>
+        </div>
+      </article>
+
+      <!-- Hafta 7 -->
+      <article class="week-card" data-category="completed notebook">
+        <div>
+          <div class="week-head">
+            <span class="week-num">7. Hafta</span>
+            <span class="status-badge">✓ Tamamlandı</span>
+          </div>
+          <h3>Veri Görselleştirme &amp; scikit-learn ile Makine Öğrenmesi</h3>
+          <p>"Doğru soruya doğru grafik" yaklaşımı ve scikit-learn kütüphanesinin birleşik API'si ile ilk tahmin modelleri.</p>
+        </div>
+        <div class="btn-group">
+          <a href="https://github.com/kahramankostas/YBS-DataMining/blob/main/hafta7/Matplotlib_Veri_Gorsellestirme.pptx" target="_blank" class="mat-btn btn-pptx">📑 Matplotlib</a>
+          <a href="https://github.com/kahramankostas/YBS-DataMining/blob/main/hafta7/scikit-learn_Makine_Ogrenmesi.pptx" target="_blank" class="mat-btn btn-pptx">📑 scikit-learn</a>
+          <a href="https://github.com/kahramankostas/YBS-DataMining/blob/main/hafta7/03_matplotlib.ipynb" target="_blank" class="mat-btn btn-nb">📓 03_matplotlib</a>
+          <a href="https://github.com/kahramankostas/YBS-DataMining/blob/main/hafta7/04_scikit_learn.ipynb" target="_blank" class="mat-btn btn-nb">📓 04_scikit_learn</a>
+          <a href="https://colab.research.google.com/github/kahramankostas/YBS-DataMining/blob/main/hafta7/04_scikit_learn.ipynb" target="_blank" class="mat-btn btn-colab">⚡ Colab</a>
+        </div>
+      </article>
+
+      <!-- Hafta 9 -->
+      <article class="week-card" data-category="completed notebook">
+        <div>
+          <div class="week-head">
+            <span class="week-num">9. Hafta</span>
+            <span class="status-badge">● Güncel</span>
+          </div>
+          <h3>ML Algoritmaları, Metrikler &amp; Etkileşimli Oyun Alanı</h3>
+          <p>Makine öğrenmesi algoritmalarıyla tanışma, Accuracy/Precision/Recall/F1 metrikleri ve tarayıcı içi etkileşimli simülasyonlar.</p>
+        </div>
+        <div class="btn-group">
+          <a href="https://github.com/kahramankostas/YBS-DataMining/blob/main/hafta9/ML_Algoritmalari_Tanisma_Partisi.pptx" target="_blank" class="mat-btn btn-pptx">📑 ML Partisi</a>
+          <a href="https://github.com/kahramankostas/YBS-DataMining/blob/main/hafta9/BasiteAccuracyPrecisionRecallveF1Score.pdf" target="_blank" class="mat-btn btn-pdf">📄 Metrikler PDF</a>
+          <a href="hafta9/Accuracy_Precision_Recall_F1_Animasyonlu.html" target="_blank" class="mat-btn btn-html">🎮 Animasyon</a>
+          <a href="hafta9/ML_Oyun_Alani.html" target="_blank" class="mat-btn btn-html">🕹️ ML Oyun Alanı</a>
+          <a href="https://github.com/kahramankostas/YBS-DataMining/blob/main/hafta9/04_scikit_learn.ipynb" target="_blank" class="mat-btn btn-nb">📓 Notebook</a>
+          <a href="https://colab.research.google.com/github/kahramankostas/YBS-DataMining/blob/main/hafta9/04_scikit_learn.ipynb" target="_blank" class="mat-btn btn-colab">⚡ Colab</a>
+        </div>
+      </article>
+
+      <!-- Hafta 10-14 Planned -->
+      <article class="week-card" data-category="planned">
+        <div>
+          <div class="week-head">
+            <span class="week-num">10–12. Haftalar</span>
+            <span class="status-badge status-planned">⏳ Planlandı</span>
+          </div>
+          <h3>Kümeleme (K-Means), Boyut İndirgeme (PCA) &amp; Ensemble</h3>
+          <p>Gözetimsiz öğrenme ile müşteri segmentasyonu, temel bileşenler analizi ve Random Forest / Boosting yöntemleri.</p>
+        </div>
+        <div class="btn-group">
+          <span class="mat-btn" style="background: var(--surface-alt); color: var(--text-muted);">🔄 Yakında Eklenecek</span>
+        </div>
+      </article>
+
+      <article class="week-card" data-category="planned">
+        <div>
+          <div class="week-head">
+            <span class="week-num">13–14. Haftalar</span>
+            <span class="status-badge status-planned">🎯 Final</span>
+          </div>
+          <h3>Dönem Sonu Proje Sunumları ve Vaka Savunmaları</h3>
+          <p>4–5 kişilik ekiplerin gerçek veri setleri üzerinde geliştirdikleri iş çözümlerini sunmaları (23 Aralık 2026).</p>
+        </div>
+        <div class="btn-group">
+          <a href="https://github.com/kahramankostas/YBS-DataMining/blob/main/odev/Veri%20Madencili%C4%9Fi%20D%C3%B6nem%20Projesi.md" target="_blank" class="mat-btn btn-md">📋 Proje Şartnamesi</a>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- Setup & Resources -->
+  <section class="section" id="kurulum">
+    <div class="section-header">
+      <div>
+        <h2 class="section-title">💻 Çalışma Ortamı Kurulumu &amp; Kaynaklar</h2>
+        <p class="section-sub">Ders defterlerini yerel bilgisayarınızda veya kurulum gerektirmeden Google Colab üzerinde çalıştırabilirsiniz.</p>
+      </div>
+    </div>
+
+    <div class="setup-grid">
+      <div class="info-card">
+        <h3>⚡ Yerel Kurulum (VS Code / Jupyter Lab)</h3>
+        <p style="font-size: 0.88rem; color: var(--text-muted); margin-top: 0.4rem;">
+          Depoyu klonlayın ve gerekli Python veri bilimi paketlerini tek komutla yükleyin:
+        </p>
+        <div class="code-box">
+          <button class="copy-btn" onclick="copyCode(this)">Kopyala</button>
+          <pre>git clone https://github.com/kahramankostas/YBS-DataMining.git
+cd YBS-DataMining
+pip install pandas numpy matplotlib seaborn scikit-learn openpyxl pyarrow jupyter</pre>
+        </div>
+      </div>
+
+      <div class="info-card">
+        <h3>📚 Önerilen Kaynaklar</h3>
+        <ul style="list-style: none; display: grid; gap: 0.65rem; font-size: 0.9rem; margin-top: 0.5rem;">
+          <li>📖 <strong>Han, Kamber &amp; Pei</strong> — <em>Data Mining: Concepts and Techniques</em></li>
+          <li>📖 <strong>Tan, Steinbach &amp; Kumar</strong> — <em>Introduction to Data Mining</em></li>
+          <li>📖 <strong>Wes McKinney</strong> — <em>Python for Data Analysis (3rd Ed.)</em></li>
+          <li>🌐 <a href="https://scikit-learn.org/stable/" target="_blank" style="color: var(--primary);">scikit-learn Resmi Dokümantasyonu</a></li>
+          <li>🌐 <a href="https://pandas.pydata.org/docs/user_guide/index.html" target="_blank" style="color: var(--primary);">Pandas Resmi Kullanıcı Kılavuzu</a></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <p><strong>YBS 301 - Veri Madenciliği</strong> · Gümüşhane Üniversitesi, Yönetim Bilişim Sistemleri Bölümü</p>
+    <p style="margin-top: 0.4rem;">
+      Ders Sorumlusu: <strong>Dr. Kahraman Koştaş</strong> ·
+      <a href="mailto:kahramankostas@gumushane.edu.tr">kahramankostas@gumushane.edu.tr</a> ·
+      <a href="https://github.com/kahramankostas/YBS-DataMining" target="_blank">GitHub Deposu</a>
+    </p>
+  </footer>
+
+  <script>
+    // Theme toggle
+    const themeToggle = document.getElementById('themeToggle');
+    const htmlEl = document.documentElement;
+    const savedTheme = localStorage.getItem('ybs301-theme') || 'light';
+    htmlEl.setAttribute('data-theme', savedTheme);
+    themeToggle.textContent = savedTheme === 'dark' ? '☀️' : '🌙';
+
+    themeToggle.addEventListener('click', () => {
+      const current = htmlEl.getAttribute('data-theme');
+      const next = current === 'dark' ? 'light' : 'dark';
+      htmlEl.setAttribute('data-theme', next);
+      localStorage.setItem('ybs301-theme', next);
+      themeToggle.textContent = next === 'dark' ? '☀️' : '🌙';
+    });
+
+    // Filter & Search
+    const filterBtns = document.querySelectorAll('.filter-btn');
+    const weekCards = document.querySelectorAll('.week-card');
+    const searchInput = document.getElementById('searchInput');
+    let activeFilter = 'all';
+
+    function applyFilters() {
+      const query = searchInput.value.toLowerCase().trim();
+      weekCards.forEach(card => {
+        const cats = card.dataset.category || '';
+        const text = card.innerText.toLowerCase();
+        const matchesFilter = activeFilter === 'all' || cats.includes(activeFilter);
+        const matchesSearch = !query || text.includes(query);
+        card.classList.toggle('hidden', !(matchesFilter && matchesSearch));
+      });
+    }
+
+    filterBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        filterBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        activeFilter = btn.dataset.filter;
+        applyFilters();
+      });
+    });
+
+    searchInput.addEventListener('input', applyFilters);
+
+    // Copy code helper
+    function copyCode(btn) {
+      const text = btn.nextElementSibling.innerText;
+      navigator.clipboard.writeText(text).then(() => {
+        btn.textContent = 'Kopyalandı!';
+        setTimeout(() => { btn.textContent = 'Kopyala'; }, 1800);
+      });
+    }
+  </script>
+</body>
+</html>
+
