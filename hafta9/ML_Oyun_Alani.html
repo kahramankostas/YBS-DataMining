@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ML Oyun Alanı</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600&family=Nunito+Sans:opsz,wght@6..12,400;6..12,600;6..12,700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#1B1E3C; --ink-2:#3A3F6B; --muted:#6A6F96; --line:#DADDEB; --wash:#F1F3FA; --paper:#FFFFFF;
+  --kalir:#4D96FF; --churn:#FF6B6B; --good:#2E9E5B; --bad:#D64545;
+  --display:"Fredoka","Nunito Sans",system-ui,sans-serif;
+  --body:"Nunito Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+  color-scheme: light;
+  /* layout: compact header + algorithm "guest" tabs; each panel = canvas stage left, controls/metrics right; quiz below */
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--paper);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.5}
+.wrap{max-width:1240px;margin:0 auto;padding:28px 24px 48px}
+header{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px 32px;margin-bottom:20px}
+h1{font-family:var(--display);font-weight:600;font-size:40px;line-height:1.1;margin:0;text-wrap:balance}
+h1 span{color:#9B5DE5}
+.sub{color:var(--ink-2);margin:6px 0 0;max-width:62ch}
+.legend-key{display:flex;gap:16px;font-size:14px;color:var(--ink-2)}
+.legend-key i{display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:6px;vertical-align:-1px}
+.legend-key i.h{background:transparent;border:2px solid var(--ink-2)}
+
+nav.tabs{display:flex;flex-wrap:wrap;gap:10px;margin:0 0 20px}
+.tab{--c:#888;display:flex;align-items:center;gap:10px;border:2px solid var(--line);background:var(--paper);border-radius:999px;padding:6px 16px 6px 6px;cursor:pointer;font:inherit;color:var(--ink);transition:transform .15s,border-color .15s,background .15s}
+.tab:hover{border-color:var(--c);transform:translateY(-1px)}
+.tab:focus-visible{outline:3px solid var(--c);outline-offset:2px}
+.tab .dot{width:30px;height:30px;border-radius:50%;background:var(--c);color:#fff;display:grid;place-items:center;font-family:var(--display);font-weight:600;font-size:15px}
+.tab b{display:block;font-size:14px;line-height:1.15}
+.tab small{display:block;font-size:12px;color:var(--muted);line-height:1.15}
+.tab[aria-selected="true"]{background:var(--c);border-color:var(--c);color:#fff}
+.tab[aria-selected="true"] small{color:rgba(255,255,255,.85)}
+.tab[aria-selected="true"] .dot{background:#fff;color:var(--c)}
+.tab.dark[aria-selected="true"]{color:var(--ink)}
+.tab.dark[aria-selected="true"] small{color:var(--ink-2)}
+
+.panel{--c:#888;display:none}
+.panel.on{display:block;animation:pop .35s ease}
+@keyframes pop{from{transform:translateY(6px);opacity:.6}to{transform:none;opacity:1}}
+.phead{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 14px;margin-bottom:14px}
+.phead h2{font-family:var(--display);font-weight:600;font-size:30px;margin:0;line-height:1.15}
+.phead em{font-style:normal;color:var(--c);font-family:var(--display);font-weight:500;font-size:22px}
+.phead code{font-family:var(--mono);font-size:13px;background:var(--wash);padding:3px 8px;border-radius:6px;color:var(--ink-2)}
+.pbody{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(0,1fr);gap:24px;align-items:start}
+@media (max-width:900px){.pbody{grid-template-columns:1fr}}
+.stage{background:var(--paper);border:2px solid var(--line);border-radius:16px;padding:8px;position:relative}
+.stage canvas{display:block;width:100%;aspect-ratio:4/3;cursor:crosshair;touch-action:manipulation}
+.hint{font-size:13px;color:var(--muted);margin:6px 6px 2px}
+.side{display:flex;flex-direction:column;gap:16px}
+.what{margin:0;color:var(--ink-2)}
+.box{background:var(--wash);border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;gap:12px}
+.box h3{margin:0;font-family:var(--display);font-weight:600;font-size:17px}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.btn{font:inherit;font-weight:700;font-size:14px;border-radius:10px;padding:8px 14px;cursor:pointer;border:2px solid var(--c);background:var(--c);color:#fff;transition:transform .1s,filter .15s}
+.btn:hover{filter:brightness(1.06);transform:translateY(-1px)}
+.btn:active{transform:translateY(1px)}
+.btn.ghost{background:var(--paper);color:var(--ink)}
+.btn.dark-on{color:var(--ink)}
+.btn:focus-visible,.seg button:focus-visible,input:focus-visible,.qopt:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
+label.sl{display:grid;grid-template-columns:1fr auto;gap:2px 10px;font-size:14px;font-weight:600}
+label.sl output{font-family:var(--mono);font-size:13px;font-variant-numeric:tabular-nums}
+label.sl input{grid-column:1/-1;width:100%;accent-color:var(--c)}
+label.ck{display:flex;gap:8px;align-items:center;font-size:14px;font-weight:600;cursor:pointer}
+label.ck input{accent-color:var(--c);width:18px;height:18px}
+.seg{display:inline-flex;border:2px solid var(--line);border-radius:10px;overflow:hidden}
+.seg button{font:inherit;font-size:13px;font-weight:700;border:0;background:var(--paper);padding:6px 12px;cursor:pointer;color:var(--ink-2)}
+.seg button[aria-pressed="true"].k{background:var(--kalir);color:#fff}
+.seg button[aria-pressed="true"].ch{background:var(--churn);color:#fff}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px}
+.tile{background:var(--paper);border-radius:10px;padding:8px 10px}
+.tile span{display:block;font-size:12px;color:var(--muted);font-weight:600}
+.tile b{display:block;font-family:var(--display);font-weight:600;font-size:22px;font-variant-numeric:tabular-nums;line-height:1.2}
+.status{font-size:14px;font-weight:600;color:var(--ink-2);min-height:1.5em}
+.chip{display:inline-block;padding:2px 10px;border-radius:999px;font-weight:700;font-size:13px;color:#fff}
+.chip.k{background:var(--kalir)}.chip.ch{background:var(--churn)}
+.cm{display:grid;grid-template-columns:auto 1fr 1fr;gap:4px;font-size:13px;text-align:center;font-variant-numeric:tabular-nums}
+.cm div{padding:6px 4px;border-radius:8px;background:var(--paper)}
+.cm .hd{background:none;font-weight:700;color:var(--muted);font-size:12px}
+.cm .ok{background:color-mix(in srgb,var(--good) 16%,white)}
+.cm .no{background:color-mix(in srgb,var(--bad) 14%,white)}
+.cm b{display:block;font-family:var(--display);font-size:20px}
+.try ul{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px;font-size:14px;color:var(--ink-2)}
+.code{font-family:var(--mono);font-size:12.5px;background:var(--ink);color:#E6E8F5;border-radius:10px;padding:10px 12px;overflow-x:auto;white-space:pre}
+pre.rules{font-family:var(--mono);font-size:12px;background:var(--paper);border-radius:10px;padding:10px 12px;margin:0;overflow:auto;max-height:220px;line-height:1.45}
+canvas.mini{display:block;width:100%;height:130px;background:var(--paper);border-radius:10px}
+.thumbs{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.thumbs figure{margin:0;text-align:center;font-size:12px;color:var(--muted);font-weight:600}
+.thumbs canvas{display:block;width:100%;aspect-ratio:4/3;background:var(--paper);border-radius:8px;margin-bottom:2px}
+.bars{display:flex;flex-direction:column;gap:8px}
+.bar{display:grid;grid-template-columns:52px 1fr 52px;align-items:center;gap:8px;font-size:13px;font-weight:700}
+.bar .tr{height:14px;background:var(--paper);border-radius:999px;overflow:hidden}
+.bar .fl{height:100%;border-radius:999px;background:var(--c);transition:width .5s ease}
+.bar .fl.b2{background:color-mix(in srgb,var(--c) 45%,white)}
+.bar span:last-child{font-family:var(--mono);text-align:right;font-variant-numeric:tabular-nums}
+.segs{display:flex;flex-direction:column;gap:6px;font-size:13px}
+.segs div{display:flex;gap:8px;align-items:center;background:var(--paper);border-radius:8px;padding:6px 10px}
+.segs i{width:12px;height:12px;border-radius:50%;flex:none}
+.segs b{flex:1}
+
+section.quiz{margin-top:44px;border-top:2px solid var(--line);padding-top:28px}
+.quiz h2{font-family:var(--display);font-weight:600;font-size:30px;margin:0 0 4px}
+.qgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:16px;margin-top:18px}
+.q{background:var(--wash);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:10px}
+.q p{margin:0;font-weight:600}
+.qopts{display:flex;flex-wrap:wrap;gap:6px}
+.qopt{font:inherit;font-size:13px;font-weight:700;border-radius:999px;padding:4px 12px;border:2px solid var(--line);background:var(--paper);cursor:pointer;color:var(--ink)}
+.qopt:hover{border-color:var(--ink-2)}
+.qopt.right{background:var(--good);border-color:var(--good);color:#fff}
+.qopt.wrong{background:var(--bad);border-color:var(--bad);color:#fff;text-decoration:line-through}
+.qfb{font-size:14px;color:var(--ink-2);min-height:1.4em}
+.score{font-family:var(--display);font-size:20px;font-weight:600}
+footer{margin-top:36px;color:var(--muted);font-size:13px;max-width:80ch}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div>
+    <h1>ML Oyun Alanı: <span>algoritmalarla oyna</span></h1>
+    <p class="sub">scikit-learn notebook'undaki 7 algoritmayı kendin dene. Nokta ekle, kaydırıcıları oynat, modelin öğrenmesini canlı izle.</p>
+  </div>
+  <div class="legend-key"><span><i style="background:var(--kalir)"></i>Kalır</span><span><i style="background:var(--churn)"></i>Churn</span><span><i class="h"></i>Test verisi</span></div>
+</header>
+
+<nav class="tabs" role="tablist" aria-label="Algoritmalar">
+  <button class="tab" role="tab" data-k="lin" style="--c:#FF6B6B"><span class="dot">1</span><span><b>Doğrusal Regresyon</b><small>Cetvelci</small></span></button>
+  <button class="tab" role="tab" data-k="log" style="--c:#FF9F1C"><span class="dot">2</span><span><b>Lojistik Regresyon</b><small>Olasılık Falcısı</small></span></button>
+  <button class="tab" role="tab" data-k="tree" style="--c:#3BB273"><span class="dot">3</span><span><b>Karar Ağacı</b><small>20 Soru Oyuncusu</small></span></button>
+  <button class="tab" role="tab" data-k="knn" style="--c:#4D96FF"><span class="dot">4</span><span><b>KNN</b><small>Komşuya Soran</small></span></button>
+  <button class="tab" role="tab" data-k="rf" style="--c:#0F8B8D"><span class="dot">5</span><span><b>Rastgele Orman</b><small>Kalabalığın Bilgeliği</small></span></button>
+  <button class="tab" role="tab" data-k="km" style="--c:#9B5DE5"><span class="dot">6</span><span><b>K-Means</b><small>Parti Organizatörü</small></span></button>
+  <button class="tab dark" role="tab" data-k="pca" style="--c:#FFC300"><span class="dot">7</span><span><b>PCA</b><small>Bavul Ustası</small></span></button>
+</nav>
+
+<!-- 1 LINEAR -->
+<section class="panel" id="p-lin" style="--c:#FF6B6B" role="tabpanel">
+  <div class="phead"><h2>Doğrusal Regresyon</h2><em>Cetvelci</em><code>LinearRegression</code></div>
+  <div class="pbody">
+    <div class="stage"><canvas id="cv-lin" aria-label="Reklam harcaması ve satış grafiği"></canvas>
+      <p class="hint">Tıkla: nokta ekle · Shift+tıkla veya sağ tıkla: nokta sil</p></div>
+    <div class="side">
+      <p class="what">Her nokta bir ay: reklam harcaması ve satış. Cetvelci, kesikli çizgilerin (hataların) karelerinin toplamını en küçük yapan düz çizgiyi arar.</p>
+      <div class="box">
+        <div class="row">
+          <button class="btn" id="lin-gd">Gradyan inişini izle</button>
+          <button class="btn ghost" id="lin-out">Aykırı değer ekle</button>
+          <button class="btn ghost" id="lin-reset">Örnek veri</button>
+          <button class="btn ghost" id="lin-clear">Temizle</button>
+        </div>
+        <label class="sl" for="lin-x">Tahmin için reklam (bin TL) <output id="lin-xo">60</output><input type="range" id="lin-x" min="0" max="100" value="60"></label>
+      </div>
+      <div class="box">
+        <div class="tiles">
+          <div class="tile"><span>Eğim</span><b id="lin-m">–</b></div>
+          <div class="tile"><span>Sabit</span><b id="lin-b">–</b></div>
+          <div class="tile"><span>R²</span><b id="lin-r2">–</b></div>
+          <div class="tile"><span>RMSE (adet)</span><b id="lin-rmse">–</b></div>
+        </div>
+        <div class="status" id="lin-st"></div>
+      </div>
+      <div class="box try"><h3>Dene</h3><ul>
+        <li>“Aykırı değer ekle”ye bas: tek bir nokta çizgiyi ne kadar eğiyor?</li>
+        <li>Noktaları U şeklinde diz: düz çizgi bunu yakalayabiliyor mu? R²'ye bak.</li>
+        <li>“Gradyan inişini izle” ile modelin hatayı adım adım küçültmesini izle.</li>
+      </ul></div>
+      <div class="code">model = LinearRegression().fit(X, y)
+model.coef_, model.intercept_</div>
+    </div>
+  </div>
+</section>
+
+<!-- 2 LOGISTIC -->
+<section class="panel" id="p-log" style="--c:#FF9F1C" role="tabpanel">
+  <div class="phead"><h2>Lojistik Regresyon</h2><em>Olasılık Falcısı</em><code>LogisticRegression</code></div>
+  <div class="pbody">
+    <div class="stage"><canvas id="cv-log" aria-label="Churn olasılık haritası"></canvas>
+      <p class="hint">Fareyi gezdir: o noktadaki churn olasılığını gör · Tıkla: seçili sınıftan müşteri ekle</p></div>
+    <div class="side">
+      <p class="what">Arka plan rengi her noktadaki churn olasılığı. Siyah çizgi, olasılığın eşiğe eşit olduğu karar sınırı. Halkalı noktalar yanlış tahmin edilenler.</p>
+      <div class="box">
+        <div class="row">
+          <button class="btn" id="log-train">Eğitimi izle</button>
+          <span class="seg" role="group" aria-label="Eklenecek sınıf"><button class="k" data-c="0" aria-pressed="false">+ Kalır</button><button class="ch" data-c="1" aria-pressed="true">+ Churn</button></span>
+          <button class="btn ghost" id="log-reset">Örnek veri</button>
+        </div>
+        <label class="sl" for="log-t">Eşik değeri <output id="log-to">0,50</output><input type="range" id="log-t" min="0.05" max="0.95" step="0.05" value="0.5"></label>
+      </div>
+      <div class="box">
+        <div class="cm" aria-label="Karışıklık matrisi">
+          <div class="hd"></div><div class="hd">Tahmin: Kalır</div><div class="hd">Tahmin: Churn</div>
+          <div class="hd">Gerçek: Kalır</div><div class="ok">TN<b id="log-tn">0</b></div><div class="no">FP (yanlış alarm)<b id="log-fp">0</b></div>
+          <div class="hd">Gerçek: Churn</div><div class="no">FN (kaçırılan)<b id="log-fn">0</b></div><div class="ok">TP<b id="log-tp">0</b></div>
+        </div>
+        <div class="tiles">
+          <div class="tile"><span>Doğruluk</span><b id="log-acc">–</b></div>
+          <div class="tile"><span>Kesinlik</span><b id="log-prec">–</b></div>
+          <div class="tile"><span>Duyarlılık</span><b id="log-rec">–</b></div>
+          <div class="tile"><span>F1</span><b id="log-f1">–</b></div>
+        </div>
+        <div class="status" id="log-st"></div>
+      </div>
+      <div class="box try"><h3>Dene</h3><ul>
+        <li>Eşiği 0,50'den 0,20'ye indir: duyarlılık artarken kesinliğe ne oluyor?</li>
+        <li>Fareyi sol üste götür (kısa abonelik, yüksek ücret): churn olasılığı kaç?</li>
+        <li>Sağ üst köşeye birkaç “Kalır” ekle ve karar sınırının kaymasını izle.</li>
+      </ul></div>
+      <div class="code">p = model.predict_proba(X)[:, 1]
+tahmin = (p >= esik).astype(int)</div>
+    </div>
+  </div>
+</section>
+
+<!-- 3 TREE -->
+<section class="panel" id="p-tree" style="--c:#3BB273" role="tabpanel">
+  <div class="phead"><h2>Karar Ağacı</h2><em>20 Soru Oyuncusu</em><code>DecisionTreeClassifier</code></div>
+  <div class="pbody">
+    <div class="stage"><canvas id="cv-tree" aria-label="Karar ağacı bölgeleri"></canvas>
+      <p class="hint">Dolu noktalar eğitim, içi boş noktalar test verisi. Her çizgi ağacın sorduğu bir soru.</p></div>
+    <div class="side">
+      <p class="what">Ağaç, veriyi “evet/hayır” sorularıyla dikdörtgen bölgelere ayırır. Derinlik arttıkça sorular çoğalır ve ağaç eğitim verisini ezberlemeye başlar.</p>
+      <div class="box">
+        <label class="sl" for="tree-d">Derinlik (max_depth) <output id="tree-do">3</output><input type="range" id="tree-d" min="1" max="12" value="3"></label>
+        <label class="sl" for="tree-n">Veri gürültüsü <output id="tree-no">0,08</output><input type="range" id="tree-n" min="0" max="0.16" step="0.02" value="0.08"></label>
+        <div class="row"><button class="btn" id="tree-grow">Ağacı büyüt</button><button class="btn ghost" id="tree-new">Yeni veri</button></div>
+      </div>
+      <div class="box">
+        <div class="tiles">
+          <div class="tile"><span>Eğitim doğruluğu</span><b id="tree-tr">–</b></div>
+          <div class="tile"><span>Test doğruluğu</span><b id="tree-te">–</b></div>
+          <div class="tile"><span>Yaprak sayısı</span><b id="tree-lv">–</b></div>
+        </div>
+        <canvas class="mini" id="tree-chart" aria-label="Derinliğe göre eğitim ve test doğruluğu"></canvas>
+        <div class="status" id="tree-st"></div>
+      </div>
+      <div class="box"><h3>Ağacın soruları</h3><pre class="rules" id="tree-rules"></pre></div>
+      <div class="box try"><h3>Dene</h3><ul>
+        <li>Derinliği 1'den 12'ye çıkar: eğitim 1,00'a yaklaşırken test ne yapıyor?</li>
+        <li>Gürültüyü artır: derin ağaç gürültüyü de ezberliyor mu?</li>
+        <li>Derinlik 2-3'te soruları oku: modeli bir yöneticiye anlatabilir misin?</li>
+      </ul></div>
+    </div>
+  </div>
+</section>
+
+<!-- 4 KNN -->
+<section class="panel" id="p-knn" style="--c:#4D96FF" role="tabpanel">
+  <div class="phead"><h2>K-En Yakın Komşu</h2><em>Komşuya Soran</em><code>KNeighborsClassifier</code></div>
+  <div class="pbody">
+    <div class="stage"><canvas id="cv-knn" aria-label="KNN komşuluk grafiği"></canvas>
+      <p class="hint">Tıkla: yeni müşteriyi oraya koy ve komşularına sorsun</p></div>
+    <div class="side">
+      <p class="what" id="knn-what">Yeni müşteri (★) en yakın k komşusuna bakar ve çoğunluk ne diyorsa onu tahmin eder. Mesafe hesabında ölçekleme açık.</p>
+      <div class="box">
+        <label class="sl" for="knn-k">Komşu sayısı (k) <output id="knn-ko">15</output><input type="range" id="knn-k" min="1" max="31" step="2" value="15"></label>
+        <div class="row">
+          <label class="ck"><input type="checkbox" id="knn-sc" checked> Ölçekleme (StandardScaler)</label>
+          <label class="ck"><input type="checkbox" id="knn-map" checked> Karar haritası</label>
+        </div>
+      </div>
+      <div class="box">
+        <div class="status" id="knn-vote">–</div>
+        <div class="tiles">
+          <div class="tile"><span>Doğruluk · ölçekli</span><b id="knn-ls">–</b></div>
+          <div class="tile"><span>Doğruluk · ölçeksiz</span><b id="knn-lu">–</b></div>
+        </div>
+        <p class="hint" style="margin:0">Doğruluk “birini dışarıda bırak” yöntemiyle: her müşteri, kendisi hariç diğerlerine sorularak tahmin edilir.</p>
+      </div>
+      <div class="box try"><h3>Dene</h3><ul>
+        <li>Ölçeklemeyi kapat: komşular neden dikey bir şeritte toplanıyor?</li>
+        <li>k=1 ile k=31'i karşılaştır: karar haritası nasıl değişiyor?</li>
+        <li>5 destek çağrısı ve 300 TL ücretli bir müşteri seç: tahmin ne?</li>
+      </ul></div>
+      <div class="code">make_pipeline(StandardScaler(),
+              KNeighborsClassifier(n_neighbors=15))</div>
+    </div>
+  </div>
+</section>
+
+<!-- 5 RF -->
+<section class="panel" id="p-rf" style="--c:#0F8B8D" role="tabpanel">
+  <div class="phead"><h2>Rastgele Orman</h2><em>Kalabalığın Bilgeliği</em><code>RandomForestClassifier</code></div>
+  <div class="pbody">
+    <div class="stage"><canvas id="cv-rf" aria-label="Rastgele orman olasılık haritası"></canvas>
+      <p class="hint">Arka plan: ağaçların ortalama oyu. Dolu noktalar eğitim, içi boş noktalar test.</p></div>
+    <div class="side">
+      <p class="what">Her ağaç verinin rastgele bir örneklemini görür ve her soruda rastgele bir değişken seçer. Tek tek dağınık karar verirler, ama ortalamaları çok daha düzgündür.</p>
+      <div class="box">
+        <label class="sl" for="rf-n">Ağaç sayısı (n_estimators) <output id="rf-no">30</output><input type="range" id="rf-n" min="1" max="60" value="30"></label>
+        <label class="sl" for="rf-d">Derinlik (max_depth) <output id="rf-do">10</output><input type="range" id="rf-d" min="2" max="12" value="10"></label>
+        <div class="row"><button class="btn" id="rf-grow">Ormanı büyüt</button><button class="btn ghost" id="rf-seed">Yeni orman</button></div>
+      </div>
+      <div class="box"><h3>Jüri üyeleri (ilk 4 ağaç)</h3>
+        <div class="thumbs"><figure><canvas id="rf-t0"></canvas>Ağaç 1</figure><figure><canvas id="rf-t1"></canvas>Ağaç 2</figure><figure><canvas id="rf-t2"></canvas>Ağaç 3</figure><figure><canvas id="rf-t3"></canvas>Ağaç 4</figure></div>
+      </div>
+      <div class="box">
+        <div class="tiles">
+          <div class="tile"><span>Tek ağaç · test</span><b id="rf-single">–</b></div>
+          <div class="tile"><span>Orman · test</span><b id="rf-forest">–</b></div>
+        </div>
+        <canvas class="mini" id="rf-chart" aria-label="Ağaç sayısına göre test doğruluğu"></canvas>
+      </div>
+      <div class="box try"><h3>Dene</h3><ul>
+        <li>Ağaç sayısını 1 yap, sonra “Ormanı büyüt”e bas: sınırlar nasıl yumuşuyor?</li>
+        <li>Jüri üyelerine bak: her ağaç farklı bir harita çiziyor.</li>
+        <li>Derinliği değiştir: tek ağaç ile orman arasındaki farkı izle.</li>
+      </ul></div>
+    </div>
+  </div>
+</section>
+
+<!-- 6 KMEANS -->
+<section class="panel" id="p-km" style="--c:#9B5DE5" role="tabpanel">
+  <div class="phead"><h2>K-Means Kümeleme</h2><em>Parti Organizatörü</em><code>KMeans</code></div>
+  <div class="pbody">
+    <div class="stage"><canvas id="cv-km" aria-label="K-Means müşteri segmentleri"></canvas>
+      <p class="hint">Burada etiket yok: renkleri algoritma kendisi buluyor. Büyük daireler küme merkezleri.</p></div>
+    <div class="side">
+      <p class="what">İki adım tekrarlanır. Atama: her müşteri en yakın merkezin masasına oturur. Güncelleme: her merkez, kendi masasının ortasına yürür. Merkezler yerinde durunca iş biter.</p>
+      <div class="box">
+        <label class="sl" for="km-k">Küme sayısı (k) <output id="km-ko">4</output><input type="range" id="km-k" min="2" max="8" value="4"></label>
+        <div class="row">
+          <button class="btn" id="km-play">Oynat</button>
+          <button class="btn ghost" id="km-step">Adım</button>
+          <button class="btn ghost" id="km-init">Yeniden başlat</button>
+          <button class="btn ghost" id="km-new">Yeni veri</button>
+        </div>
+        <div class="status" id="km-st"></div>
+      </div>
+      <div class="box"><h3>Dirsek grafiği</h3>
+        <canvas class="mini" id="km-chart" aria-label="Küme sayısına göre inertia"></canvas>
+      </div>
+      <div class="box"><h3>Segment profilleri</h3><div class="segs" id="km-segs"></div></div>
+      <div class="box try"><h3>Dene</h3><ul>
+        <li>Dirsek grafiğinde kırılma nerede? k'yı oraya ayarla.</li>
+        <li>“Yeniden başlat”a birkaç kez bas: kötü bir başlangıç tuhaf kümeler üretebiliyor mu?</li>
+        <li>“Adım” ile ilerle: atama ve güncellemeyi tek tek izle.</li>
+      </ul></div>
+      <div class="code">X = StandardScaler().fit_transform(df)
+df["kume"] = KMeans(n_clusters=4, n_init=10).fit_predict(X)</div>
+    </div>
+  </div>
+</section>
+
+<!-- 7 PCA -->
+<section class="panel" id="p-pca" style="--c:#E0A800" role="tabpanel">
+  <div class="phead"><h2>Temel Bileşen Analizi</h2><em>Bavul Ustası</em><code>PCA</code></div>
+  <div class="pbody">
+    <div class="stage"><canvas id="cv-pca" aria-label="PCA projeksiyon grafiği"></canvas>
+      <p class="hint">Uzun ok PC1: verinin en çok yayıldığı yön. Kısa ok PC2.</p></div>
+    <div class="side">
+      <p class="what">İki ilişkili değişkeni tek bir yeni eksene (PC1) indiriyoruz. “Bavulu topla” deyince her nokta PC1 çizgisine kayar; kaybolan tek şey çizgiye dik uzaklıktır.</p>
+      <div class="box">
+        <label class="sl" for="pca-r">İki değişken arası korelasyon <output id="pca-ro">0,80</output><input type="range" id="pca-r" min="0" max="0.98" step="0.02" value="0.8"></label>
+        <div class="row"><button class="btn dark-on" id="pca-go">Bavulu topla</button><button class="btn ghost" id="pca-new">Yeni veri</button></div>
+      </div>
+      <div class="box"><h3>Açıklanan varyans</h3>
+        <div class="bars">
+          <div class="bar"><span>PC1</span><div class="tr"><div class="fl" id="pca-b1"></div></div><span id="pca-v1">–</span></div>
+          <div class="bar"><span>PC2</span><div class="tr"><div class="fl b2" id="pca-b2"></div></div><span id="pca-v2">–</span></div>
+        </div>
+        <div class="status" id="pca-st"></div>
+      </div>
+      <div class="box try"><h3>Dene</h3><ul>
+        <li>Korelasyonu 0,95'e çıkar ve bavulu topla: bilginin ne kadarı korunuyor?</li>
+        <li>Korelasyonu 0'a indir: neden artık tek boyuta sığmıyor?</li>
+        <li>Notebook'ta churn verisinde 2 bileşen sadece %31 taşıyordu. Sence neden?</li>
+      </ul></div>
+      <div class="code">pca = PCA(n_components=1)
+X_kucuk = pca.fit_transform(X)
+pca.explained_variance_ratio_</div>
+    </div>
+  </div>
+</section>
+
+<section class="quiz" id="quiz">
+  <div class="row" style="justify-content:space-between">
+    <div><h2>Hangi konuğu çağırırsın?</h2><p class="what">Her senaryo için doğru algoritmayı seç.</p></div>
+    <div class="score" id="q-score">0 / 7</div>
+  </div>
+  <div class="qgrid" id="q-grid"></div>
+</section>
+
+<footer>Tüm hesaplar tarayıcında JavaScript ile yapılıyor. Algoritmalar scikit-learn'deki karşılıklarının sadeleştirilmiş sürümleri, veriler ise oyuncak örnekler.</footer>
+</div>
+
+<script>
+(function(){
+"use strict";
+const $=s=>document.querySelector(s);
+const RM=window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches;
+const T={ink:"#1B1E3C",ink2:"#3A3F6B",muted:"#6A6F96",line:"#E3E5F0",kalir:"#4D96FF",churn:"#FF6B6B"};
+const FONT='"Nunito Sans", system-ui, sans-serif';
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const ease=t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
+const sig=z=>1/(1+Math.exp(-z));
+const tr=(v,d=2)=>v.toLocaleString("tr-TR",{minimumFractionDigits:d,maximumFractionDigits:d});
+const pct=v=>"%"+Math.round(v*100);
+function rng(seed){return function(){seed|=0;seed=seed+0x6D2B79F5|0;let t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function randn(r){let u=0;while(!u)u=r();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*r());}
+function mix(p,a){const c0=[77,150,255],c1=[255,107,107];const c=c0.map((v,i)=>Math.round(v+(c1[i]-v)*p));return `rgba(${c[0]},${c[1]},${c[2]},${a})`;}
+function shuffle(arr,r){for(let i=arr.length-1;i>0;i--){const j=Math.floor(r()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]];}return arr;}
+function fmt(v){const a=Math.abs(v);if(a>=1000)return Math.round(v).toLocaleString("tr-TR");if(Number.isInteger(v)||a>=10)return String(Math.round(v));return tr(v,1);}
+
+function fitCanvas(cv){const r=cv.getBoundingClientRect();if(!r.width)return null;const dpr=window.devicePixelRatio||1;cv.width=Math.round(r.width*dpr);cv.height=Math.round(r.height*dpr);const ctx=cv.getContext("2d");ctx.setTransform(dpr,0,0,dpr,0,0);return {ctx,w:r.width,h:r.height};}
+
+class Plot{
+  constructor(cv,o){this.cv=cv;this.o=Object.assign({xr:[0,1],yr:[0,1],xt:4,yt:4},o);this.pad={l:54,r:14,t:14,b:42};}
+  resize(){const f=fitCanvas(this.cv);if(!f)return false;Object.assign(this,f);return true;}
+  X(x){return this.pad.l+x*(this.w-this.pad.l-this.pad.r);}
+  Y(y){return this.h-this.pad.b-y*(this.h-this.pad.t-this.pad.b);}
+  get pw(){return this.w-this.pad.l-this.pad.r;} get ph(){return this.h-this.pad.t-this.pad.b;}
+  inv(e){const b=this.cv.getBoundingClientRect();return {x:(e.clientX-b.left-this.pad.l)/this.pw,y:(this.h-this.pad.b-(e.clientY-b.top))/this.ph};}
+  clear(){const c=this.ctx;c.clearRect(0,0,this.w,this.h);c.fillStyle="#fff";c.fillRect(0,0,this.w,this.h);}
+  clip(){const c=this.ctx;c.beginPath();c.rect(this.X(0),this.Y(1),this.pw,this.ph);c.clip();}
+  heat(fn,cell=7){const nx=Math.ceil(this.pw/cell),ny=Math.ceil(this.ph/cell);const off=this._off||(this._off=document.createElement("canvas"));off.width=nx;off.height=ny;const o=off.getContext("2d");o.clearRect(0,0,nx,ny);
+    for(let i=0;i<nx;i++)for(let j=0;j<ny;j++){o.fillStyle=fn((i+.5)/nx,1-(j+.5)/ny);o.fillRect(i,j,1,1);}
+    const c=this.ctx;c.save();c.imageSmoothingEnabled=true;c.drawImage(off,this.pad.l,this.pad.t,this.pw,this.ph);c.restore();}
+  axes(){const c=this.ctx,o=this.o;c.save();c.font=`12px ${FONT}`;c.fillStyle=T.muted;c.strokeStyle="rgba(27,30,60,.08)";c.lineWidth=1;
+    for(let i=0;i<=o.xt;i++){const t=i/o.xt,x=this.X(t);c.beginPath();c.moveTo(x,this.Y(0));c.lineTo(x,this.Y(1));c.stroke();c.textAlign="center";c.textBaseline="top";c.fillText(fmt(o.xr[0]+t*(o.xr[1]-o.xr[0])),x,this.Y(0)+6);}
+    for(let i=0;i<=o.yt;i++){const t=i/o.yt,y=this.Y(t);c.beginPath();c.moveTo(this.X(0),y);c.lineTo(this.X(1),y);c.stroke();c.textAlign="right";c.textBaseline="middle";c.fillText(fmt(o.yr[0]+t*(o.yr[1]-o.yr[0])),this.X(0)-7,y);}
+    c.strokeStyle="rgba(27,30,60,.25)";c.beginPath();c.moveTo(this.X(0),this.Y(1));c.lineTo(this.X(0),this.Y(0));c.lineTo(this.X(1),this.Y(0));c.stroke();
+    c.fillStyle=T.ink2;c.font=`700 12px ${FONT}`;c.textAlign="center";c.textBaseline="bottom";c.fillText(o.xl,this.X(.5),this.h-2);
+    c.translate(12,this.Y(.5));c.rotate(-Math.PI/2);c.textBaseline="middle";c.fillText(o.yl,0,0);c.restore();}
+  dot(x,y,col,o={}){const c=this.ctx,r=o.r||5;c.beginPath();c.arc(this.X(x),this.Y(y),r,0,7);if(o.hollow){c.fillStyle="#fff";c.fill();c.lineWidth=2.2;c.strokeStyle=col;c.stroke();}else{c.fillStyle=col;c.fill();c.lineWidth=1.2;c.strokeStyle="rgba(255,255,255,.9)";c.stroke();}if(o.ring){c.beginPath();c.arc(this.X(x),this.Y(y),r+3.5,0,7);c.lineWidth=2;c.strokeStyle=T.ink;c.stroke();}}
+  label(txt,px,py){const c=this.ctx;c.save();c.font=`700 13px ${FONT}`;const w=c.measureText(txt).width+16;let x=px+12,y=py-34;if(x+w>this.w-4)x=px-w-12;if(y<4)y=py+12;c.fillStyle="rgba(27,30,60,.92)";c.beginPath();c.roundRect?c.roundRect(x,y,w,26,8):c.rect(x,y,w,26);c.fill();c.fillStyle="#fff";c.textBaseline="middle";c.fillText(txt,x+8,y+13);c.restore();}
+}
+
+function miniChart(cv,series,o){const f=fitCanvas(cv);if(!f)return;const {ctx:c,w,h}=f;const pad={l:34,r:10,t:22,b:20};const n=o.n,ymin=o.ymin??0,ymax=o.ymax??1;
+  const X=i=>pad.l+(n>1?i/(n-1):0)*(w-pad.l-pad.r),Y=v=>h-pad.b-(v-ymin)/(ymax-ymin)*(h-pad.t-pad.b);
+  c.clearRect(0,0,w,h);c.font=`11px ${FONT}`;c.fillStyle=T.muted;c.strokeStyle="rgba(27,30,60,.08)";
+  for(let k=0;k<=2;k++){const v=ymin+k*(ymax-ymin)/2,y=Y(v);c.beginPath();c.moveTo(pad.l,y);c.lineTo(w-pad.r,y);c.stroke();c.textAlign="right";c.textBaseline="middle";c.fillText(o.yfmt?o.yfmt(v):tr(v,2),pad.l-5,y);}
+  c.textAlign="center";c.textBaseline="top";(o.xticks||[0,n-1]).forEach(i=>c.fillText(String(o.x0!=null?o.x0+i:i+1),X(i),h-pad.b+4));
+  if(o.marker!=null){c.strokeStyle="rgba(27,30,60,.35)";c.setLineDash([3,3]);c.beginPath();c.moveTo(X(o.marker),pad.t);c.lineTo(X(o.marker),h-pad.b);c.stroke();c.setLineDash([]);}
+  let lx=pad.l;series.forEach(s=>{c.strokeStyle=s.color;c.lineWidth=2.2;if(s.dash)c.setLineDash([5,4]);c.beginPath();s.v.forEach((v,i)=>{i?c.lineTo(X(i),Y(v)):c.moveTo(X(i),Y(v));});c.stroke();c.setLineDash([]);
+    if(o.marker!=null&&!s.dash){c.fillStyle=s.color;c.beginPath();c.arc(X(o.marker),Y(s.v[o.marker]),4.5,0,7);c.fill();}
+    c.fillStyle=s.color;c.font=`700 11px ${FONT}`;c.textAlign="left";c.textBaseline="top";c.fillRect(lx,6,10,3);c.fillText(s.label,lx+14,1);lx+=c.measureText(s.label).width+30;});}
+
+/* ---------- decision tree (CART, gini) ---------- */
+function buildTree(pts,maxD,rand,depth=0){const n=pts.length;let c1=0;for(const p of pts)c1+=p.c;const node={n,p:n?c1/n:.5,depth};
+  if(depth>=maxD||c1===0||c1===n||n<2)return node;const feats=rand?[rand()<.5?0:1]:[0,1];let best=null;
+  for(const f of feats){const key=f?"y":"x";const s=pts.slice().sort((a,b)=>a[key]-b[key]);let l1=0;
+    for(let i=0;i<n-1;i++){l1+=s[i].c;if(s[i][key]===s[i+1][key])continue;const nl=i+1,nr=n-nl,pl=l1/nl,pr=(c1-l1)/nr;const g=(nl*2*pl*(1-pl)+nr*2*pr*(1-pr))/n;if(!best||g<best.g)best={g,f,t:(s[i][key]+s[i+1][key])/2};}}
+  if(!best)return node;node.f=best.f;node.t=best.t;const key=best.f?"y":"x";
+  node.L=buildTree(pts.filter(p=>p[key]<=best.t),maxD,rand,depth+1);node.R=buildTree(pts.filter(p=>p[key]>best.t),maxD,rand,depth+1);return node;}
+function predict(nd,x,y){while(nd.f!==undefined)nd=(nd.f?y:x)<=nd.t?nd.L:nd.R;return nd.p;}
+function leaves(nd){return nd.f===undefined?1:leaves(nd.L)+leaves(nd.R);}
+function acc(tree,pts){if(!pts.length)return 0;let k=0;for(const p of pts)if((predict(tree,p.x,p.y)>=.5?1:0)===p.c)k++;return k/pts.length;}
+function drawRegions(P,nd,b,alpha,lines){const c=P.ctx;if(nd.f===undefined){c.fillStyle=mix(nd.p,alpha);c.fillRect(P.X(b.x0),P.Y(b.y1),P.X(b.x1)-P.X(b.x0),P.Y(b.y0)-P.Y(b.y1));return;}
+  if(nd.f===0){drawRegions(P,nd.L,{...b,x1:nd.t},alpha,lines);drawRegions(P,nd.R,{...b,x0:nd.t},alpha,lines);if(lines)lines.push([nd.t,b.y0,nd.t,b.y1]);}
+  else{drawRegions(P,nd.L,{...b,y1:nd.t},alpha,lines);drawRegions(P,nd.R,{...b,y0:nd.t},alpha,lines);if(lines)lines.push([b.x0,nd.t,b.x1,nd.t]);}}
+
+const MODS={};
+
+/* ================= 1. LINEAR ================= */
+MODS.lin=(function(){
+  const P=new Plot($("#cv-lin"),{xl:"Reklam harcaması (bin TL)",yl:"Satış (adet)",xr:[0,100],yr:[0,300]});
+  let pts=[],m=0,b=0,anim=null,xq=60,iter=0,mode="";
+  function sample(){const r=rng(7);pts=[];for(let i=0;i<14;i++){const x=.08+.84*r();pts.push({x,y:clamp(.12+.62*x+randn(r)*.05,.02,.98)});}}
+  function closed(){const n=pts.length;if(n<2)return {m:0,b:n?pts[0].y:.5};let mx=0,my=0;pts.forEach(p=>{mx+=p.x;my+=p.y;});mx/=n;my/=n;let sxy=0,sxx=0;pts.forEach(p=>{sxy+=(p.x-mx)*(p.y-my);sxx+=(p.x-mx)**2;});const mm=sxx>1e-9?sxy/sxx:0;return {m:mm,b:my-mm*mx};}
+  function stats(){const n=pts.length;if(!n)return {mse:0,r2:0};let my=0;pts.forEach(p=>my+=p.y);my/=n;let ss=0,st=0;pts.forEach(p=>{const e=p.y-(m*p.x+b);ss+=e*e;st+=(p.y-my)**2;});return {mse:ss/n,r2:st>1e-12?1-ss/st:0};}
+  function stop(){if(anim)cancelAnimationFrame(anim);anim=null;}
+  function tween(){stop();mode="";const to=closed();if(RM){m=to.m;b=to.b;draw();return;}const m0=m,b0=b;let f=0;const st=()=>{f++;const t=ease(Math.min(1,f/22));m=m0+(to.m-m0)*t;b=b0+(to.b-b0)*t;draw();anim=f<22?requestAnimationFrame(st):null;};anim=requestAnimationFrame(st);}
+  function gd(){stop();if(pts.length<2)return;m=-.4;b=.85;iter=0;mode="gd";const n=pts.length;const to=closed();
+    const step=()=>{let gm=0,gb=0;pts.forEach(p=>{const e=m*p.x+b-p.y;gm+=e*p.x;gb+=e;});m-=.5*2*gm/n;b-=.5*2*gb/n;iter++;};
+    const done=()=>Math.abs(to.m-m)<3e-4&&Math.abs(to.b-b)<3e-4||iter>=2000;
+    if(RM){while(!done())step();draw();return;}
+    const run=()=>{for(let s=0;s<3;s++)step();draw();anim=done()?null:requestAnimationFrame(run);if(!anim)draw();};anim=requestAnimationFrame(run);}
+  function draw(){if(!P.ctx)return;const c=P.ctx;P.clear();P.axes();
+    c.save();P.clip();
+    c.setLineDash([4,4]);c.strokeStyle="rgba(214,69,69,.55)";c.lineWidth=1.5;pts.forEach(p=>{c.beginPath();c.moveTo(P.X(p.x),P.Y(p.y));c.lineTo(P.X(p.x),P.Y(m*p.x+b));c.stroke();});c.setLineDash([]);
+    if(pts.length){c.strokeStyle="#FF6B6B";c.lineWidth=4;c.lineCap="round";c.beginPath();c.moveTo(P.X(-.1),P.Y(m*-.1+b));c.lineTo(P.X(1.1),P.Y(m*1.1+b));c.stroke();}
+    const xn=xq/100,yh=m*xn+b;
+    if(pts.length){c.setLineDash([2,4]);c.strokeStyle=T.ink2;c.lineWidth=1.2;c.beginPath();c.moveTo(P.X(xn),P.Y(0));c.lineTo(P.X(xn),P.Y(yh));c.lineTo(P.X(0),P.Y(yh));c.stroke();c.setLineDash([]);}
+    c.restore();
+    pts.forEach(p=>P.dot(p.x,p.y,T.ink2,{r:6}));
+    if(pts.length){c.save();c.fillStyle="#FF6B6B";c.beginPath();c.arc(P.X(xn),P.Y(clamp(yh,-.05,1.05)),8,0,7);c.fill();c.strokeStyle="#fff";c.lineWidth=2.5;c.stroke();c.restore();P.label(`${xq} bin TL → ${Math.round(yh*300)} adet`,P.X(xn),P.Y(clamp(yh,0,1)));}
+    const s=stats();
+    $("#lin-m").textContent=pts.length?tr(m*3,2):"–";$("#lin-b").textContent=pts.length?tr(b*300,1):"–";
+    $("#lin-r2").textContent=pts.length>1?tr(s.r2,3):"–";$("#lin-rmse").textContent=pts.length?tr(Math.sqrt(s.mse)*300,1):"–";
+    $("#lin-st").textContent=mode==="gd"?(anim?`Gradyan inişi: ${iter}. adım, hata küçülüyor…`:`Tamamlandı: ${iter} adımda en iyi çizgiye ulaştı.`):pts.length<2?"En az 2 nokta ekle.":`Model: satış = ${tr(b*300,1)} + ${tr(m*3,2)} × reklam`;}
+  const cv=P.cv;
+  function nearest(e){const q=P.inv(e);let bi=-1,bd=1e9;pts.forEach((p,i)=>{const d=Math.hypot((p.x-q.x)*P.pw,(p.y-q.y)*P.ph);if(d<bd){bd=d;bi=i;}});return bd<16?bi:-1;}
+  cv.addEventListener("click",e=>{if(e.shiftKey){const i=nearest(e);if(i>=0)pts.splice(i,1);}else{const q=P.inv(e);if(q.x<0||q.x>1||q.y<0||q.y>1)return;pts.push({x:q.x,y:q.y});}tween();});
+  cv.addEventListener("contextmenu",e=>{e.preventDefault();const i=nearest(e);if(i>=0){pts.splice(i,1);tween();}});
+  $("#lin-gd").onclick=gd;$("#lin-out").onclick=()=>{pts.push({x:.9+Math.random()*.06,y:.04+Math.random()*.05});tween();};
+  $("#lin-reset").onclick=()=>{sample();tween();};$("#lin-clear").onclick=()=>{pts=[];stop();mode="";draw();};
+  $("#lin-x").oninput=e=>{xq=+e.target.value;$("#lin-xo").textContent=xq;draw();};
+  sample();const c0=closed();m=c0.m;b=c0.b;
+  return {show(){P.resize();draw();}};
+})();
+
+/* ================= 2. LOGISTIC ================= */
+MODS.log=(function(){
+  const P=new Plot($("#cv-log"),{xl:"Abonelik süresi (ay)",yl:"Aylık ücret (TL)",xr:[0,72],yr:[150,900],xt:6,yt:5});
+  let pts=[],w1=0,w2=0,w0=0,thr=.5,add=1,mouse=null,anim=null,steps=0,training=false;
+  function sample(){const r=rng(11);pts=[];for(let i=0;i<110;i++){const a=r(),u=r();const z=5.5*(u-.45)-6.5*(a-.4);pts.push({x:a,y:u,c:r()<sig(z)?1:0});}}
+  const prob=(x,y)=>sig(w1*(x-.5)+w2*(y-.5)+w0);
+  function stepGD(k){const n=pts.length;if(!n)return;for(let s=0;s<k;s++){let g1=0,g2=0,g0=0;for(const p of pts){const e=prob(p.x,p.y)-p.c;g1+=e*(p.x-.5);g2+=e*(p.y-.5);g0+=e;}w1-=4*(g1/n+.002*w1);w2-=4*(g2/n+.002*w2);w0-=4*g0/n;steps++;}}
+  function trainNow(){w1=w2=w0=0;steps=0;stepGD(3000);}
+  function stop(){if(anim)cancelAnimationFrame(anim);anim=null;training=false;}
+  function trainAnim(){stop();w1=w2=w0=0;steps=0;if(RM){stepGD(3000);draw();return;}training=true;const run=()=>{stepGD(20);draw();if(steps<3000)anim=requestAnimationFrame(run);else{training=false;anim=null;draw();}};anim=requestAnimationFrame(run);}
+  function draw(){if(!P.ctx)return;const c=P.ctx;P.clear();P.heat((x,y)=>mix(prob(x,y),.32),7);P.axes();
+    const L=Math.log(thr/(1-thr));c.save();P.clip();c.strokeStyle=T.ink;c.lineWidth=3;c.beginPath();
+    if(Math.abs(w2)>1e-6){const yAt=x=>(L-w0-w1*(x-.5))/w2+.5;c.moveTo(P.X(-.5),P.Y(yAt(-.5)));c.lineTo(P.X(1.5),P.Y(yAt(1.5)));}
+    else if(Math.abs(w1)>1e-6){const x=(L-w0)/w1+.5;c.moveTo(P.X(x),P.Y(-.1));c.lineTo(P.X(x),P.Y(1.1));}
+    c.stroke();c.restore();
+    let tp=0,fp=0,fn=0,tn=0;pts.forEach(p=>{const pr=prob(p.x,p.y)>=thr?1:0;if(pr&&p.c)tp++;else if(pr&&!p.c)fp++;else if(!pr&&p.c)fn++;else tn++;P.dot(p.x,p.y,p.c?T.churn:T.kalir,{r:5,ring:pr!==p.c});});
+    if(mouse&&mouse.x>=0&&mouse.x<=1&&mouse.y>=0&&mouse.y<=1)P.label(`Churn olasılığı ${pct(prob(mouse.x,mouse.y))}`,P.X(mouse.x),P.Y(mouse.y));
+    const n=pts.length||1,prec=tp+fp?tp/(tp+fp):0,rec=tp+fn?tp/(tp+fn):0,f1=prec+rec?2*prec*rec/(prec+rec):0;
+    $("#log-tn").textContent=tn;$("#log-fp").textContent=fp;$("#log-fn").textContent=fn;$("#log-tp").textContent=tp;
+    $("#log-acc").textContent=tr((tp+tn)/n,2);$("#log-prec").textContent=tr(prec,2);$("#log-rec").textContent=tr(rec,2);$("#log-f1").textContent=tr(f1,2);
+    $("#log-st").textContent=training?`Eğitiliyor: ${steps} / 3000 adım`:`Katsayılar: abonelik ${w1<0?"−":"+"}${tr(Math.abs(w1),1)} (${w1<0?"riski azaltır":"riski artırır"}), ücret ${w2<0?"−":"+"}${tr(Math.abs(w2),1)} (${w2<0?"riski azaltır":"riski artırır"})`;}
+  const cv=P.cv;
+  cv.addEventListener("mousemove",e=>{mouse=P.inv(e);if(!anim)draw();});
+  cv.addEventListener("mouseleave",()=>{mouse=null;if(!anim)draw();});
+  cv.addEventListener("click",e=>{const q=P.inv(e);if(q.x<0||q.x>1||q.y<0||q.y>1)return;stop();pts.push({x:q.x,y:q.y,c:add});trainNow();draw();});
+  document.querySelectorAll("#p-log .seg button").forEach(bt=>bt.onclick=()=>{add=+bt.dataset.c;document.querySelectorAll("#p-log .seg button").forEach(o=>o.setAttribute("aria-pressed",String(o===bt)));});
+  $("#log-train").onclick=trainAnim;$("#log-reset").onclick=()=>{stop();sample();trainNow();draw();};
+  $("#log-t").oninput=e=>{thr=+e.target.value;$("#log-to").textContent=tr(thr,2);draw();};
+  sample();trainNow();
+  return {show(){P.resize();draw();}};
+})();
+
+/* ================= 3. TREE ================= */
+MODS.tree=(function(){
+  const P=new Plot($("#cv-tree"),{xl:"Abonelik süresi (ay)",yl:"Aylık ücret (TL)",xr:[0,72],yr:[150,900],xt:6,yt:5});
+  let train=[],test=[],depth=3,noise=.08,seed=3,tree=null,anim=null,curves=null;
+  function gen(){const r=rng(seed);const all=[];for(let i=0;i<180;i++){const c=i%2,t=Math.PI*r();let x,y;if(c===0){x=Math.cos(t);y=Math.sin(t);}else{x=1-Math.cos(t);y=.5-Math.sin(t);}x=(x+1.25)/3.5+randn(r)*noise;y=(y+.85)/2.2+randn(r)*noise;all.push({x:clamp(x,.01,.99),y:clamp(y,.01,.99),c});}
+    shuffle(all,r);train=all.slice(0,126);test=all.slice(126);
+    curves={tr:[],te:[]};for(let d=1;d<=12;d++){const t=buildTree(train,d);curves.tr.push(acc(t,train));curves.te.push(acc(t,test));}}
+  function rules(nd,ind,lim){if(nd.f===undefined)return `${ind}→ ${nd.p>=.5?"Churn":"Kalır"} (%${Math.round(100*Math.max(nd.p,1-nd.p))}, ${nd.n} müşteri)\n`;
+    if(nd.depth>=lim)return `${ind}… (${leaves(nd)} yaprak daha)\n`;
+    const q=nd.f===0?`Abonelik ≤ ${Math.round(nd.t*72)} ay`:`Ücret ≤ ${Math.round(150+nd.t*750)} TL`;
+    return `${ind}${q} ?\n${ind}├ evet:\n`+rules(nd.L,ind+"│  ",lim)+`${ind}└ hayır:\n`+rules(nd.R,ind+"   ",lim);}
+  function draw(){if(!P.ctx)return;const c=P.ctx;tree=buildTree(train,depth);P.clear();const lines=[];drawRegions(P,tree,{x0:0,x1:1,y0:0,y1:1},.3,lines);P.axes();
+    c.save();P.clip();c.strokeStyle="rgba(27,30,60,.55)";c.lineWidth=1.6;lines.forEach(l=>{c.beginPath();c.moveTo(P.X(l[0]),P.Y(l[1]));c.lineTo(P.X(l[2]),P.Y(l[3]));c.stroke();});c.restore();
+    train.forEach(p=>P.dot(p.x,p.y,p.c?T.churn:T.kalir,{r:4.5}));test.forEach(p=>P.dot(p.x,p.y,p.c?T.churn:T.kalir,{r:4.5,hollow:true}));
+    const a1=acc(tree,train),a2=acc(tree,test);$("#tree-tr").textContent=tr(a1,2);$("#tree-te").textContent=tr(a2,2);$("#tree-lv").textContent=leaves(tree);
+    $("#tree-rules").textContent=rules(tree,"",3);
+    $("#tree-st").textContent=a1-a2>.12?"Dikkat: eğitim ile test arası fark büyük, ağaç ezberliyor!":depth<=1?"Tek soru az geliyor: ağaç veriyi tam ayıramıyor.":"Eğitim ve test birbirine yakın: ağaç iyi genelliyor.";
+    miniChart($("#tree-chart"),[{v:curves.tr,color:"#3BB273",label:"Eğitim"},{v:curves.te,color:"#1B1E3C",label:"Test"}],{n:12,marker:depth-1,ymin:.5,ymax:1,xticks:[0,3,7,11]});}
+  function grow(){if(anim)clearTimeout(anim);const target=+$("#tree-d").value;let d=1;const tick=()=>{depth=d;$("#tree-do").textContent=d;draw();if(d<target){d++;anim=setTimeout(tick,RM?0:550);}else anim=null;};tick();}
+  $("#tree-d").oninput=e=>{depth=+e.target.value;$("#tree-do").textContent=depth;draw();};
+  $("#tree-n").oninput=e=>{noise=+e.target.value;$("#tree-no").textContent=tr(noise,2);gen();draw();};
+  $("#tree-grow").onclick=grow;$("#tree-new").onclick=()=>{seed=Math.floor(Math.random()*1e6);gen();draw();};
+  gen();
+  return {show(){P.resize();draw();}};
+})();
+
+/* ================= 4. KNN ================= */
+MODS.knn=(function(){
+  const P=new Plot($("#cv-knn"),{xl:"Aylık ücret (TL)",yl:"Destek çağrısı (adet)",xr:[150,900],yr:[0,7],xt:5,yt:7});
+  let pts=[],k=15,scaled=true,map=true,q={x:.5,y:.72},shown=0,timer=null,sd={tl:1,ca:1},loo={s:0,u:0};
+  const raw=p=>({tl:150+750*p.x,ca:p.y*7});
+  function gen(){const r=rng(5);pts=[];for(let i=0;i<140;i++){const calls=Math.floor(r()*7),u=r();const pc=calls>=4?.85:.08+.12*u;pts.push({x:u,y:(calls+.5+(r()-.5)*.6)/7,c:r()<pc?1:0});}
+    const R=pts.map(raw),mt=R.reduce((a,b)=>a+b.tl,0)/R.length,mc=R.reduce((a,b)=>a+b.ca,0)/R.length;
+    sd.tl=Math.sqrt(R.reduce((a,b)=>a+(b.tl-mt)**2,0)/R.length);sd.ca=Math.sqrt(R.reduce((a,b)=>a+(b.ca-mc)**2,0)/R.length);}
+  function dist(a,b,sc){const dt=750*(a.x-b.x),dc=7*(a.y-b.y);return sc?Math.hypot(dt/sd.tl,dc/sd.ca):Math.hypot(dt,dc);}
+  function neigh(p,sc,kk,skip){const arr=[];for(const o of pts){if(o===skip)continue;arr.push({o,d:dist(p,o,sc)});}arr.sort((a,b)=>a.d-b.d);return arr.slice(0,kk);}
+  function vote(p,sc,kk,skip){const nb=neigh(p,sc,kk,skip);let c1=0;nb.forEach(n=>c1+=n.o.c);return c1/nb.length;}
+  function computeLoo(){const f=sc=>{let ok=0;for(const p of pts)if((vote(p,sc,k,p)>.5?1:0)===p.c)ok++;return ok/pts.length;};loo={s:f(true),u:f(false)};}
+  function draw(){if(!P.ctx)return;const c=P.ctx;P.clear();if(map)P.heat((x,y)=>mix(vote({x,y},scaled,k)>.5?1:0,.16),9);P.axes();
+    const nb=neigh(q,scaled,k);const set=new Set(nb.slice(0,shown).map(n=>n.o));
+    c.save();c.strokeStyle="rgba(27,30,60,.45)";c.lineWidth=1.4;nb.slice(0,shown).forEach(n=>{c.beginPath();c.moveTo(P.X(q.x),P.Y(q.y));c.lineTo(P.X(n.o.x),P.Y(n.o.y));c.stroke();});c.restore();
+    pts.forEach(p=>P.dot(p.x,p.y,p.c?T.churn:T.kalir,{r:set.has(p)?6:4,ring:set.has(p)}));
+    const done=shown>=nb.length;let c1=0;nb.slice(0,shown).forEach(n=>c1+=n.o.c);const c0=shown-c1;const pred=c1>c0?1:0;
+    const X=P.X(q.x),Y=P.Y(q.y);c.save();c.beginPath();for(let i=0;i<10;i++){const a=-Math.PI/2+i*Math.PI/5,rr=i%2?6:14;c.lineTo(X+rr*Math.cos(a),Y+rr*Math.sin(a));}c.closePath();c.fillStyle=done?(pred?T.churn:T.kalir):"#FFC300";c.fill();c.strokeStyle=T.ink;c.lineWidth=2;c.stroke();c.restore();
+    const rq=raw(q);P.label(`${Math.round(rq.tl)} TL, ${tr(rq.ca,1)} çağrı`,X,Y);
+    $("#knn-vote").innerHTML=done?`Komşular: <b>${c1}</b> churn, <b>${c0}</b> kalır → Tahmin: <span class="chip ${pred?"ch":"k"}">${pred?"Churn":"Kalır"}</span>`:`Komşular sayılıyor… ${shown} / ${nb.length}`;
+    $("#knn-ls").textContent=tr(loo.s,2);$("#knn-lu").textContent=tr(loo.u,2);
+    $("#knn-ls").parentElement.style.outline=scaled?"2px solid #4D96FF":"none";$("#knn-lu").parentElement.style.outline=scaled?"none":"2px solid #4D96FF";
+    $("#knn-what").textContent=scaled?"Yeni müşteri (★) en yakın k komşusuna bakar ve çoğunluk ne diyorsa onu tahmin eder. Ölçekleme açık: ücret ve çağrı sayısı eşit söz hakkına sahip.":"Ölçekleme kapalı! Ücret farkı yüzlerce TL, çağrı farkı en fazla 7. Mesafeyi neredeyse sadece ücret belirliyor, bu yüzden komşular dikey bir şeritte toplanıyor.";}
+  function ask(){if(timer)clearInterval(timer);shown=0;if(RM){shown=k;draw();return;}draw();timer=setInterval(()=>{shown++;draw();if(shown>=k){clearInterval(timer);timer=null;}},Math.max(25,600/k));}
+  P.cv.addEventListener("click",e=>{const p=P.inv(e);if(p.x<0||p.x>1||p.y<0||p.y>1)return;q=p;ask();});
+  $("#knn-k").oninput=e=>{k=+e.target.value;$("#knn-ko").textContent=k;computeLoo();shown=k;draw();};
+  $("#knn-k").onchange=ask;
+  $("#knn-sc").onchange=e=>{scaled=e.target.checked;ask();};$("#knn-map").onchange=e=>{map=e.target.checked;draw();};
+  gen();computeLoo();shown=k;
+  return {show(){P.resize();draw();}};
+})();
+
+/* ================= 5. RANDOM FOREST ================= */
+MODS.rf=(function(){
+  const P=new Plot($("#cv-rf"),{xl:"Abonelik süresi (ay)",yl:"Aylık ücret (TL)",xr:[0,72],yr:[150,900],xt:6,yt:5});
+  let train=[],test=[],trees=[],single=null,N=30,D=10,seed=1,timer=null,testAcc=[],grid=null;
+  function gen(){const r=rng(21);const all=[];for(let i=0;i<230;i++){const x=r(),y=r();let c=((x-.5)**2/.07+(y-.5)**2/.05)<1?1:0;if(r()<.12)c=1-c;all.push({x,y,c});}shuffle(all,r);train=all.slice(0,160);test=all.slice(160);}
+  function build(){const r=rng(seed);trees=[];for(let t=0;t<60;t++){const boot=[];for(let i=0;i<train.length;i++)boot.push(train[Math.floor(r()*train.length)]);trees.push(buildTree(boot,D,r));}
+    single=buildTree(train,D);const sums=new Array(test.length).fill(0);testAcc=[];
+    trees.forEach(t=>{test.forEach((p,i)=>sums[i]+=predict(t,p.x,p.y));let ok=0;test.forEach((p,i)=>{if(((sums[i]/(testAcc.length+1))>=.5?1:0)===p.c)ok++;});testAcc.push(ok/test.length);});grid=null;}
+  function draw(){if(!P.ctx)return;P.clear();const use=trees.slice(0,N);P.heat((x,y)=>{let s=0;for(const t of use)s+=predict(t,x,y);return mix(s/use.length,.34);},7);P.axes();
+    train.forEach(p=>P.dot(p.x,p.y,p.c?T.churn:T.kalir,{r:4}));test.forEach(p=>P.dot(p.x,p.y,p.c?T.churn:T.kalir,{r:4.5,hollow:true}));
+    const sa=acc(single,test);$("#rf-single").textContent=tr(sa,2);$("#rf-forest").textContent=tr(testAcc[N-1],2);
+    miniChart($("#rf-chart"),[{v:testAcc,color:"#0F8B8D",label:"Orman · test"},{v:new Array(60).fill(sa),color:"#6A6F96",label:"Tek ağaç · test",dash:true}],{n:60,marker:N-1,ymin:.5,ymax:1,xticks:[0,19,39,59]});}
+  function thumbs(){for(let i=0;i<4;i++){const cv=$("#rf-t"+i);const Q=new Plot(cv,{});Q.pad={l:0,r:0,t:0,b:0};if(!Q.resize())continue;Q.clear();drawRegions(Q,trees[i],{x0:0,x1:1,y0:0,y1:1},.75,null);}}
+  function grow(){if(timer)clearTimeout(timer);const target=+$("#rf-n").value;let n=1;const tick=()=>{N=n;$("#rf-no").textContent=n;draw();if(n<target){n++;timer=setTimeout(tick,RM?0:110);}else timer=null;};tick();}
+  $("#rf-n").oninput=e=>{N=+e.target.value;$("#rf-no").textContent=N;draw();};
+  $("#rf-d").oninput=e=>{D=+e.target.value;$("#rf-do").textContent=D;build();draw();thumbs();};
+  $("#rf-grow").onclick=grow;$("#rf-seed").onclick=()=>{seed=Math.floor(Math.random()*1e6);build();draw();thumbs();};
+  gen();build();
+  return {show(){P.resize();draw();thumbs();}};
+})();
+
+/* ================= 6. K-MEANS ================= */
+MODS.km=(function(){
+  const P=new Plot($("#cv-km"),{xl:"Yıllık alışveriş sayısı",yl:"Yıllık harcama (TL)",xr:[0,40],yr:[0,10000],xt:4,yt:5});
+  const COLS=["#9B5DE5","#FF9F1C","#3BB273","#4D96FF","#FF6B6B","#0F8B8D","#E07A5F","#C9A400"];
+  let pts=[],k=4,cents=[],assign=null,phase="assign",it=0,playing=null,trails=[],moving=null,converged=false,elbow=[];
+  function gen(centers,seed){const r=rng(seed);pts=[];centers.forEach(([cx,cy])=>{for(let i=0;i<55;i++)pts.push({x:clamp(cx+randn(r)*.06,.01,.99),y:clamp(cy+randn(r)*.065,.01,.99)});});computeElbow();}
+  function randomCenters(){const r=Math.random,cs=[];const n=3+Math.floor(r()*3);let guard=0;while(cs.length<n&&guard++<500){const c=[.12+.76*r(),.12+.76*r()];if(cs.every(o=>Math.hypot(o[0]-c[0],o[1]-c[1])>.25))cs.push(c);}return cs;}
+  function near(p,cs){let bi=0,bd=1e9;cs.forEach((c,i)=>{const d=(p.x-c.x)**2+(p.y-c.y)**2;if(d<bd){bd=d;bi=i;}});return bi;}
+  function inertia(cs,as){let s=0;pts.forEach((p,i)=>{const c=cs[as[i]];s+=(p.x-c.x)**2+(p.y-c.y)**2;});return s;}
+  function runKM(kk,r){let cs=[];const idx=shuffle(pts.map((_,i)=>i),r).slice(0,kk);cs=idx.map(i=>({x:pts[i].x,y:pts[i].y}));let as=[];
+    for(let t=0;t<60;t++){as=pts.map(p=>near(p,cs));const nc=cs.map((c,j)=>{let sx=0,sy=0,n=0;pts.forEach((p,i)=>{if(as[i]===j){sx+=p.x;sy+=p.y;n++;}});return n?{x:sx/n,y:sy/n}:c;});const mv=Math.max(...nc.map((c,j)=>Math.hypot(c.x-cs[j].x,c.y-cs[j].y)));cs=nc;if(mv<1e-6)break;}
+    return inertia(cs,as);}
+  function computeElbow(){const r=rng(9);elbow=[];for(let kk=1;kk<=8;kk++){let best=1e9;for(let s=0;s<4;s++)best=Math.min(best,runKM(kk,r));elbow.push(best);}}
+  function init(){stopPlay();const idx=shuffle(pts.map((_,i)=>i),Math.random).slice(0,k);cents=idx.map(i=>({x:pts[i].x,y:pts[i].y}));trails=cents.map(c=>[{x:c.x,y:c.y}]);assign=null;phase="assign";it=0;converged=false;moving=null;}
+  function step(){if(converged||moving)return;if(phase==="assign"){assign=pts.map(p=>near(p,cents));phase="update";it++;draw();return;}
+    const nc=cents.map((c,j)=>{let sx=0,sy=0,n=0;pts.forEach((p,i)=>{if(assign[i]===j){sx+=p.x;sy+=p.y;n++;}});return n?{x:sx/n,y:sy/n}:{x:c.x,y:c.y};});
+    const mv=Math.max(...nc.map((c,j)=>Math.hypot(c.x-cents[j].x,c.y-cents[j].y)));phase="assign";
+    if(mv<1e-5){converged=true;stopPlay();draw();return;}
+    const from=cents.map(c=>({...c}));nc.forEach((c,j)=>trails[j].push({x:c.x,y:c.y}));
+    if(RM){cents=nc;draw();return;}let f=0;moving=true;const an=()=>{f++;const t=ease(Math.min(1,f/24));cents=from.map((c,j)=>({x:c.x+(nc[j].x-c.x)*t,y:c.y+(nc[j].y-c.y)*t}));draw();if(f<24)requestAnimationFrame(an);else{moving=null;cents=nc;draw();}};requestAnimationFrame(an);}
+  function stopPlay(){if(playing)clearInterval(playing);playing=null;$("#km-play").textContent="Oynat";}
+  function play(){if(playing){stopPlay();return;}if(converged)init();$("#km-play").textContent="Duraklat";step();playing=setInterval(step,RM?150:750);}
+  function name(c,m){const hf=c.x>m.x,hs=c.y>m.y;return hf&&hs?"Sadık VIP'ler":hf?"Sık ama az harcayanlar":hs?"Seyrek ama cömertler":"Uykudaki müşteriler";}
+  function draw(){if(!P.ctx)return;const c=P.ctx;P.clear();
+    if(assign||converged){P.heat((x,y)=>{const j=near({x,y},cents);return COLS[j]+"1C";},9);}P.axes();
+    pts.forEach((p,i)=>P.dot(p.x,p.y,assign?COLS[assign[i]]:"#A9ADC8",{r:4.2}));
+    c.save();trails.forEach((tr_,j)=>{if(tr_.length<2)return;c.strokeStyle=COLS[j];c.lineWidth=2;c.setLineDash([4,4]);c.beginPath();tr_.forEach((p,i)=>i?c.lineTo(P.X(p.x),P.Y(p.y)):c.moveTo(P.X(p.x),P.Y(p.y)));c.stroke();});c.setLineDash([]);
+    cents.forEach((ce,j)=>{const X=P.X(ce.x),Y=P.Y(ce.y);c.beginPath();c.arc(X,Y,12,0,7);c.fillStyle=COLS[j];c.fill();c.lineWidth=3;c.strokeStyle="#fff";c.stroke();c.lineWidth=1.5;c.strokeStyle=T.ink;c.beginPath();c.arc(X,Y,13.5,0,7);c.stroke();c.fillStyle="#fff";c.font=`700 12px ${FONT}`;c.textAlign="center";c.textBaseline="middle";c.fillText(j+1,X,Y+.5);});c.restore();
+    const inr=assign?inertia(cents,assign):null;
+    $("#km-st").textContent=converged?`Yakınsadı! ${it} turda merkezler yerine oturdu. Inertia: ${tr(inr*100,2)}`:!assign?"Merkezler rastgele noktalara yerleşti. “Adım” ile atamayı başlat.":phase==="update"?`Tur ${it} · Atama yapıldı: herkes en yakın merkezin rengini aldı. Sıradaki: merkezleri güncelle.`:`Tur ${it} · Merkezler kendi gruplarının ortasına yürüdü. Sıradaki: yeniden ata.`;
+    miniChart($("#km-chart"),[{v:elbow.map(v=>v*100),color:"#9B5DE5",label:"Inertia (küme içi toplam uzaklık²)"}],{n:8,marker:k-1,ymin:0,ymax:Math.max(...elbow)*100*1.05,yfmt:v=>tr(v,0),xticks:[0,1,2,3,4,5,6,7]});
+    const box=$("#km-segs");if(!assign){box.innerHTML='<div><b>Önce kümeleri oluştur.</b></div>';return;}
+    const m={x:pts.reduce((a,p)=>a+p.x,0)/pts.length,y:pts.reduce((a,p)=>a+p.y,0)/pts.length};
+    box.innerHTML=cents.map((ce,j)=>{const n=assign.filter(a=>a===j).length;return `<div><i style="background:${COLS[j]}"></i><b>${j+1}. ${name(ce,m)}</b><span>${n} kişi · ${Math.round(ce.x*40)} alışveriş · ${Math.round(ce.y*10000).toLocaleString("tr-TR")} TL</span></div>`;}).join("");}
+  $("#km-k").oninput=e=>{k=+e.target.value;$("#km-ko").textContent=k;init();draw();};
+  $("#km-step").onclick=()=>{stopPlay();if(converged)init();step();};$("#km-play").onclick=play;
+  $("#km-init").onclick=()=>{init();draw();};$("#km-new").onclick=()=>{gen(randomCenters(),Math.floor(Math.random()*1e6));init();draw();};
+  gen([[.2,.14],[.42,.5],[.78,.24],[.72,.82]],4);
+  {const r=rng(2);const idx=shuffle(pts.map((_,i)=>i),r).slice(0,k);cents=idx.map(i=>({x:pts[i].x,y:pts[i].y}));trails=cents.map(c=>[{...c}]);
+   for(let s=0;s<40;s++){assign=pts.map(p=>near(p,cents));const nc=cents.map((c,j)=>{let sx=0,sy=0,n=0;pts.forEach((p,i)=>{if(assign[i]===j){sx+=p.x;sy+=p.y;n++;}});return n?{x:sx/n,y:sy/n}:c;});const mv=Math.max(...nc.map((c,j)=>Math.hypot(c.x-cents[j].x,c.y-cents[j].y)));if(mv<1e-5){converged=true;break;}nc.forEach((c,j)=>trails[j].push({...c}));cents=nc;it++;}}
+  return {show(){P.resize();draw();}};
+})();
+
+/* ================= 7. PCA ================= */
+MODS.pca=(function(){
+  const P=new Plot($("#cv-pca"),{xl:"Metrekare (standartlaştırılmış)",yl:"Oda sayısı (standartlaştırılmış)",xr:[-3,3],yr:[-3,3],xt:6,yt:6});
+  let base=[],pts=[],rho=.8,seed=8,s=0,anim=null,eig=null,packed=false;
+  function gen(){const r=rng(seed);base=[];for(let i=0;i<150;i++)base.push([randn(r),randn(r)]);apply();}
+  function apply(){pts=base.map(([a,b])=>{const x=a,y=rho*a+Math.sqrt(1-rho*rho)*b;return {x:clamp((x+3)/6,.01,.99),y:clamp((y*.95+3)/6,.01,.99)};});
+    const n=pts.length,mx=pts.reduce((a,p)=>a+p.x,0)/n,my=pts.reduce((a,p)=>a+p.y,0)/n;let a=0,b=0,c=0;pts.forEach(p=>{a+=(p.x-mx)**2;b+=(p.x-mx)*(p.y-my);c+=(p.y-my)**2;});a/=n;b/=n;c/=n;
+    const tr_=(a+c)/2,dd=Math.sqrt(((a-c)/2)**2+b*b),l1=tr_+dd,l2=tr_-dd;let v=Math.abs(b)>1e-12?[b,l1-a]:(a>=c?[1,0]:[0,1]);const nv=Math.hypot(v[0],v[1]);v=[v[0]/nv,v[1]/nv];
+    eig={mx,my,l1,l2,v1:v,v2:[-v[1],v[0]]};}
+  function proj(p){const d=(p.x-eig.mx)*eig.v1[0]+(p.y-eig.my)*eig.v1[1];return {x:eig.mx+d*eig.v1[0],y:eig.my+d*eig.v1[1]};}
+  function arrow(c,x0,y0,x1,y1,col,w){c.strokeStyle=col;c.fillStyle=col;c.lineWidth=w;c.beginPath();c.moveTo(x0,y0);c.lineTo(x1,y1);c.stroke();const a=Math.atan2(y1-y0,x1-x0);c.beginPath();c.moveTo(x1,y1);c.lineTo(x1-14*Math.cos(a-.4),y1-14*Math.sin(a-.4));c.lineTo(x1-14*Math.cos(a+.4),y1-14*Math.sin(a+.4));c.closePath();c.fill();}
+  function draw(){if(!P.ctx)return;const c=P.ctx;P.clear();P.axes();const e=eig;
+    c.save();P.clip();c.strokeStyle="rgba(224,168,0,.5)";c.lineWidth=2;c.setLineDash([6,5]);c.beginPath();c.moveTo(P.X(e.mx-2*e.v1[0]),P.Y(e.my-2*e.v1[1]));c.lineTo(P.X(e.mx+2*e.v1[0]),P.Y(e.my+2*e.v1[1]));c.stroke();c.setLineDash([]);
+    if(s>0){c.strokeStyle="rgba(27,30,60,.18)";c.lineWidth=1;pts.forEach(p=>{const q=proj(p);c.beginPath();c.moveTo(P.X(p.x),P.Y(p.y));c.lineTo(P.X(q.x),P.Y(q.y));c.stroke();});}
+    c.restore();
+    if(s>0)pts.forEach(p=>P.dot(p.x,p.y,"rgba(58,63,107,.18)",{r:3.5}));
+    pts.forEach(p=>{const q=proj(p);P.dot(p.x+(q.x-p.x)*s,p.y+(q.y-p.y)*s,"#3A3F6B",{r:4.2});});
+    c.save();const L1=2.2*Math.sqrt(e.l1),L2=2.2*Math.sqrt(e.l2),ox=P.X(e.mx),oy=P.Y(e.my);
+    arrow(c,ox,oy,P.X(e.mx+L1*e.v1[0]),P.Y(e.my+L1*e.v1[1]),"#E0A800",5);
+    if(L2>.01)arrow(c,ox,oy,P.X(e.mx+L2*e.v2[0]),P.Y(e.my+L2*e.v2[1]),"#C9A400AA",3.5);
+    c.font=`700 14px ${FONT}`;c.fillStyle=T.ink;c.fillText("PC1",P.X(e.mx+L1*e.v1[0])+10,P.Y(e.my+L1*e.v1[1]));if(L2>.03)c.fillText("PC2",P.X(e.mx+L2*e.v2[0])+8,P.Y(e.my+L2*e.v2[1]));c.restore();
+    const r1=e.l1/(e.l1+e.l2),r2=1-r1;$("#pca-b1").style.width=(r1*100)+"%";$("#pca-b2").style.width=(r2*100)+"%";$("#pca-v1").textContent=pct(r1);$("#pca-v2").textContent=pct(r2);
+    $("#pca-st").textContent=s>=1?`Bavul toplandı: 2 değişken yerine 1 bileşen, bilginin ${pct(r1)}'i yanımızda.`:r1>.85?"Değişkenler çok ilişkili: tek boyuta sığdırmak kolay olacak.":r1<.62?"Değişkenler neredeyse ilişkisiz: tek boyuta indirince çok bilgi kaybederiz.":"Orta düzey ilişki: PC1 bilginin çoğunu taşıyor ama kayıp var.";
+    $("#pca-go").textContent=packed?"Bavulu aç":"Bavulu topla";}
+  function go(){if(anim)cancelAnimationFrame(anim);packed=!packed;const from=s,to=packed?1:0;if(RM){s=to;draw();return;}let f=0;const an=()=>{f++;const t=ease(Math.min(1,f/50));s=from+(to-from)*t;draw();anim=f<50?requestAnimationFrame(an):null;};anim=requestAnimationFrame(an);}
+  $("#pca-r").oninput=e=>{rho=+e.target.value;$("#pca-ro").textContent=tr(rho,2);apply();draw();};
+  $("#pca-go").onclick=go;$("#pca-new").onclick=()=>{seed=Math.floor(Math.random()*1e6);gen();draw();};
+  gen();
+  return {show(){P.resize();draw();}};
+})();
+
+/* ================= TABS ================= */
+const HASH={lin:"dogrusal",log:"lojistik",tree:"agac",knn:"knn",rf:"orman",km:"kmeans",pca:"pca"};
+const BACK=Object.fromEntries(Object.entries(HASH).map(([a,b])=>[b,a]));
+let active=null;
+function show(key,push){if(!MODS[key])key="lin";active=key;document.querySelectorAll(".tab").forEach(t=>t.setAttribute("aria-selected",String(t.dataset.k===key)));
+  document.querySelectorAll(".panel").forEach(p=>p.classList.toggle("on",p.id==="p-"+key));MODS[key].show();
+  if(push&&location.hash!=="#"+HASH[key]){try{history.replaceState(null,"","#"+HASH[key]);}catch(e){location.hash=HASH[key];}}}
+document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>show(t.dataset.k,true));
+window.addEventListener("hashchange",()=>{const k=BACK[location.hash.slice(1)];if(k&&k!==active)show(k,false);});
+let rt=null;window.addEventListener("resize",()=>{clearTimeout(rt);rt=setTimeout(()=>active&&MODS[active].show(),120);});
+show(BACK[location.hash.slice(1)]||"lin",false);
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>active&&MODS[active].show());
+
+/* ================= QUIZ ================= */
+const NAMES={lin:"Doğrusal Regresyon",log:"Lojistik Regresyon",tree:"Karar Ağacı",knn:"KNN",rf:"Rastgele Orman",km:"K-Means",pca:"PCA"};
+const QS=[
+ {q:"Emlak sitesi ev fiyatını metrekare ve oda sayısına göre tahmin edecek, her değişkenin etkisini de müşteriye açıklayacak.",a:"lin",why:"Hedef sayısal ve katsayılar doğrudan yorumlanıyor: “her ek m² fiyatı X TL artırır”."},
+ {q:"Banka, kredi reddinin nedenini başvurana “eğer-ise” kurallarıyla açıklamak zorunda.",a:"tree",why:"Karar ağacının kuralları okunabilir: “Gelir ≤ 20.000 ve borç oranı > %40 ise red”."},
+ {q:"Pazarlama ekibinin 50.000 müşterisi var ama hiç etiket yok. Benzer müşterileri gruplamak istiyorlar.",a:"km",why:"Hedef değişken yok: denetimsiz kümeleme işi. Sonra her kümeye bir isim ve strateji verilir."},
+ {q:"Telekom şirketi her müşteri için 0-1 arası bir churn risk puanı ve hangi değişkenin riski artırdığını görmek istiyor.",a:"log",why:"Lojistik regresyon olasılık verir, katsayıların işareti de etki yönünü gösterir."},
+ {q:"Bir anketin 40 sorusu birbiriyle çok ilişkili. Katılımcıları 2 boyutlu bir grafikte görmek istiyorsun.",a:"pca",why:"PCA ilişkili değişkenleri birkaç temel bileşene sıkıştırır: görselleştirme için ideal."},
+ {q:"Yorum ikinci planda. Karmaşık ilişkilerin olduğu veride en yüksek doğruluk ve değişken önemleri isteniyor.",a:"rf",why:"Rastgele Orman doğrusal olmayan ilişkileri yakalar, aşırı öğrenmeye dayanıklıdır, feature_importances_ verir."},
+ {q:"Yeni bir izleyiciye, film zevki kendisine en çok benzeyen 10 kişinin sevdiği filmleri önereceksin.",a:"knn",why:"“En benzer 10 kişi” tam olarak k=10 komşu demek."},
+];
+let score=0;const grid=$("#q-grid");
+QS.forEach((item,qi)=>{const d=document.createElement("div");d.className="q";d.innerHTML=`<p>${qi+1}. ${item.q}</p><div class="qopts"></div><div class="qfb" aria-live="polite"></div>`;
+  const opts=d.querySelector(".qopts"),fb=d.querySelector(".qfb");let done=false;
+  Object.entries(NAMES).forEach(([k,n])=>{const b=document.createElement("button");b.className="qopt";b.textContent=n;b.type="button";b.onclick=()=>{if(done)return;if(k===item.a){b.classList.add("right");done=true;score++;$("#q-score").textContent=`${score} / ${QS.length}`;fb.innerHTML=`<b>Doğru!</b> ${item.why}`;}else{b.classList.add("wrong");fb.textContent="Bu konuk bu işe pek uygun değil, bir daha dene.";}};opts.appendChild(b);});
+  grid.appendChild(d);});
+$("#q-score").textContent=`0 / ${QS.length}`;
+})();
+</script>
+</body>
+</html>
