@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Accuracy, Precision, Recall ve F1 – Animasyonlu Anlatım</title>
+<style>
+:root{--bg:#f7f7f5;--card:#fff;--tx:#1d1d1b;--mut:#6b6b66;--bd:#dcdcd6;--red:#d93a3a;--grn:#2e9e5b;--blu:#3a6fd9;--amb:#e8a317}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#17171a;--card:#232328;--tx:#ececea;--mut:#9a9a94;--bd:#3a3a42}}
+:root[data-theme="dark"]{--bg:#17171a;--card:#232328;--tx:#ececea;--mut:#9a9a94;--bd:#3a3a42}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+main{max-width:860px;margin:0 auto;padding:16px}
+h1{font-size:1.4rem;margin:.2em 0}
+h2{font-size:1.05rem;margin:.1em 0 .4em}
+.sub{color:var(--mut);margin:0 0 14px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:14px;margin-bottom:14px}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+button,select{font:inherit;cursor:pointer;border:1px solid var(--bd);background:var(--card);color:var(--tx);border-radius:10px;padding:8px 12px}
+button.on{background:var(--blu);color:#fff;border-color:var(--blu)}
+button:disabled{opacity:.45;cursor:default}
+button:focus-visible,select:focus-visible,.mrow:focus-visible,input:focus-visible{outline:3px solid var(--amb);outline-offset:2px}
+
+/* Müşteriler */
+#people{display:grid;grid-template-columns:repeat(10,1fr);gap:4px;margin:8px 0}
+.p{text-align:center;font-size:.7rem;color:var(--mut);transition:transform .3s,opacity .3s}
+.p .f{width:100%;max-width:46px;aspect-ratio:1;margin:0 auto;border-radius:50%;border:3px solid var(--bd);display:flex;align-items:center;justify-content:center;font-size:1.3rem;background:var(--bg);transition:border-color .4s,background .4s,box-shadow .4s}
+.p.act{transform:translateY(-6px)}
+.p.act .f{border-color:var(--amb);box-shadow:0 0 0 4px rgba(232,163,23,.3)}
+.p.rt .f{border-color:var(--red);background:rgba(217,58,58,.15)}
+.p.rn .f{border-color:var(--grn);background:rgba(46,158,91,.1)}
+.p.done{opacity:.6}
+.tag{display:block;min-height:1.3em;font-size:.66rem;line-height:1.2;margin-top:3px}
+.tag.pr{color:var(--blu);font-weight:600}
+@media (max-width:520px){.tag{font-size:.56rem}.p .f{font-size:1rem;border-width:2px}}
+#msg{min-height:3em;padding:8px 10px;border-left:4px solid var(--amb);background:var(--bg);border-radius:6px;margin:8px 0}
+.ctl{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:8px}
+#prog{margin-left:auto;color:var(--mut);font-size:.9rem}
+
+/* Karışıklık matrisi */
+.mxw{display:grid;grid-template-columns:auto 1fr 1fr;gap:4px;align-items:stretch;margin:10px 0 4px}
+.hd{font-size:.8rem;color:var(--mut);text-align:center;display:flex;align-items:center;justify-content:center;padding:2px 6px}
+.hd.v{writing-mode:vertical-rl;transform:rotate(180deg)}
+.cell{position:relative;min-height:104px;border:2px solid var(--bd);border-radius:10px;padding:40px 6px 6px;transition:opacity .3s,border-color .3s,box-shadow .3s}
+.cell.good{background:rgba(46,158,91,.14)}
+.cell.bad{background:rgba(217,58,58,.12)}
+.cell .nm{position:absolute;top:3px;left:8px;font-weight:800;font-size:.85rem;color:var(--mut)}
+.cell .ds{position:absolute;top:20px;left:8px;font-size:.7rem;color:var(--mut)}
+.cell .ct{position:absolute;top:2px;right:8px;font-weight:800;font-size:1.25rem}
+.big .cell .ct{font-size:1.6rem}
+.ct.bump{animation:bump .45s}
+@keyframes bump{40%{transform:scale(1.5);color:var(--blu)}}
+.cell.num{border-color:var(--blu);box-shadow:0 0 0 3px rgba(58,111,217,.35)}
+.cell.den{border-color:var(--blu);border-style:dashed}
+.cell.off{opacity:.3}
+.cell.land{box-shadow:0 0 0 4px rgba(232,163,23,.5)}
+.dots{display:flex;flex-wrap:wrap;gap:4px;align-content:flex-start}
+.big .dots{gap:2px}
+.tk{position:relative;z-index:5;width:26px;height:26px;border-radius:50%;border:2px solid var(--grn);font-size:.7rem;display:flex;align-items:center;justify-content:center;background:var(--card)}
+.tk.t{border-color:var(--red);background:#f8dada;color:#1d1d1b}
+.dot{width:var(--ds,8px);height:var(--ds,8px);border-radius:50%;background:var(--mut);opacity:.5;animation:fade .3s}
+.dot.t{background:var(--red);opacity:.95}
+@keyframes fade{from{opacity:0;transform:scale(0)}}
+.lg{font-size:.8rem;color:var(--mut);margin-top:2px}
+
+/* Metrikler */
+.mrow{display:grid;grid-template-columns:150px 1fr 56px;gap:8px;align-items:center;margin:6px 0;cursor:pointer;padding:4px 6px;border-radius:8px;border:1px solid transparent}
+.mrow:hover{background:rgba(58,111,217,.05)}
+.mrow.sel{border-color:var(--blu);background:rgba(58,111,217,.08)}
+.mrow small{display:block;color:var(--mut);font-size:.72rem;line-height:1.1}
+.mrow.pri span::after{content:" ★ öncelik";color:var(--amb);font-size:.72rem;font-weight:700}
+.bar{height:16px;background:var(--bg);border:1px solid var(--bd);border-radius:8px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--grn);transition:width .7s}
+.mrow[data-m=acc] .bar i{background:var(--blu)}
+.mrow[data-m=f1] .bar i{background:var(--amb)}
+.mrow b{text-align:right}
+@media (max-width:520px){.mrow{grid-template-columns:105px 1fr 46px}}
+#fm{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.88rem;padding:10px;background:var(--bg);border-radius:8px;margin-top:8px;overflow-x:auto;line-height:1.8}
+#fm i{font-family:system-ui,sans-serif;color:var(--mut)}
+.v{font-weight:700;padding:0 3px;border-radius:4px}
+.v.tp,.v.tn{background:rgba(46,158,91,.2)}
+.v.fp,.v.fn{background:rgba(217,58,58,.18)}
+#key{font-size:.8rem;color:var(--mut);margin-top:6px}
+#note{font-size:.95rem;margin-top:8px;padding:8px 10px;border-left:4px solid var(--blu);background:var(--bg);border-radius:6px}
+#note:empty{display:none}
+.sl{margin-top:8px}
+.sl input{width:100%}
+.slh{display:flex;justify-content:space-between;font-size:.75rem;color:var(--mut)}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<main>
+<h1>Accuracy, Precision, Recall ve F1 Score</h1>
+<p class="sub">Hırsız tahmini örneğiyle, adım adım. Önce oynatın, sonra alttaki metriklere tıklayın.</p>
+
+<div class="tabs" id="tabs" role="tablist">
+  <button class="on" data-s="demo">1) 10 müşteri örneği</button>
+  <button data-s="broken">2) Bozuk alarm (dengesiz veri)</button>
+  <button data-s="slider">3) Alarm ayarı</button>
+  <button data-s="cancer">4) Kanser taraması</button>
+  <button data-s="spam">5) Spam filtresi</button>
+</div>
+
+<div class="card">
+  <div id="sc-demo">
+    <h2>Güvenlik görevlisi olarak her müşteri için tahmin yapıyorsunuz</h2>
+    <div id="people"></div>
+    <div id="msg" aria-live="polite"></div>
+    <div class="ctl">
+      <button id="play">▶ Oynat</button>
+      <button id="next">Sonraki müşteri →</button>
+      <button id="reset">↺ Sıfırla</button>
+      <select id="spd" aria-label="Hız"><option value="1.7">Yavaş</option><option value="1" selected>Normal</option><option value="0.45">Hızlı</option></select>
+      <span id="prog">0 / 10</span>
+    </div>
+  </div>
+  <div id="sc-broken" hidden><h2>Alarm bozuk: 100 müşteriden yalnızca 1’i hırsız</h2>
+    <div>Sistem kimseyi hırsız olarak işaretlemiyor. Hırsızı kaçırdık, ama doğru tahmin oranı çok yüksek görünüyor.</div></div>
+  <div id="sc-slider" hidden><h2>Alarmı daha kolay çalacak şekilde ayarlarsak ne olur?</h2>
+    <div>100 müşteri, 20 gerçek hırsız. Bazı hırsızlar çaldıklarını iyice sarıp alarmı kandırıyor. Hassasiyeti yükseltin: sarılı ürünler de yakalanır (TP artar, FN aynı oranda azalır) ama üzerinde metal eşya taşıyan masum müşteriler için de alarm çalar (FP artar).</div>
+    <div class="sl"><label for="rng">Alarm hassasiyeti: <b id="sv">0</b> / 10</label><input type="range" id="rng" min="0" max="10" value="0">
+      <div class="slh"><span>Temkinli (az alarm)</span><span>Agresif (çok alarm)</span></div></div></div>
+  <div id="sc-real" hidden><h2>Gerçek hayat: hangi hata daha pahalı?</h2>
+    <div id="head4"></div>
+    <div class="sl"><label for="rng4"><span id="sl4"></span>: <b id="sv4">5</b> / 10</label><input type="range" id="rng4" min="0" max="10" value="5">
+      <div class="slh"><span id="lo4"></span><span id="hi4"></span></div></div>
+    <div id="msg4" style="margin-top:8px"></div></div>
+
+  <div class="mxw" id="mxw">
+    <div></div><div class="hd" id="h1">Gerçek: Hırsız</div><div class="hd" id="h2">Gerçek: Değil</div>
+    <div class="hd v" id="h3">Tahmin: Hırsız</div>
+    <div class="cell good" id="c-tp"><span class="nm">TP</span><span class="ds">doğru yakalama</span><span class="ct">0</span><div class="dots"></div></div>
+    <div class="cell bad" id="c-fp"><span class="nm">FP</span><span class="ds">yanlış alarm</span><span class="ct">0</span><div class="dots"></div></div>
+    <div class="hd v" id="h4">Tahmin: Değil</div>
+    <div class="cell bad" id="c-fn"><span class="nm">FN</span><span class="ds">kaçırılan</span><span class="ct">0</span><div class="dots"></div></div>
+    <div class="cell good" id="c-tn"><span class="nm">TN</span><span class="ds">doğru geçiş</span><span class="ct">0</span><div class="dots"></div></div>
+  </div>
+  <div class="lg" id="lg"></div>
+</div>
+
+<div class="card">
+  <h2>Metrikler (birine tıklayın, kullanılan hücreler vurgulansın)</h2>
+  <div class="mrow sel" data-m="acc" tabindex="0" role="button"><span>Accuracy<small>Doğruluk</small></span><div class="bar"><i></i></div><b>–</b></div>
+  <div class="mrow" data-m="pre" tabindex="0" role="button"><span>Precision<small>Kesinlik</small></span><div class="bar"><i></i></div><b>–</b></div>
+  <div class="mrow" data-m="rec" tabindex="0" role="button"><span>Recall<small>Duyarlılık</small></span><div class="bar"><i></i></div><b>–</b></div>
+  <div class="mrow" data-m="f1" tabindex="0" role="button"><span>F1 Score<small>P ve R’nin harmonik ort.</small></span><div class="bar"><i></i></div><b>–</b></div>
+  <div id="fm"></div>
+  <div id="key">Matriste: <b>düz mavi çerçeve</b> = hem payda hem paydada, <b>kesikli çerçeve</b> = yalnızca paydada, <b>soluk</b> = hesaba katılmaz.</div>
+  <div id="note" aria-live="polite"></div>
+</div>
+</main>
+
+<script>
+const real=[0,0,0,1,1,1,0,1,0,1], pred=[1,0,1,0,1,1,0,0,0,1];
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const KEYS=['tp','fp','fn','tn'];
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+let C={tp:0,fp:0,fn:0,tn:0}, sel='acc', mode='demo', idx=0, gen=0, busy=false, playing=false, speed=1;
+
+const wait=(ms,g)=>new Promise(r=>setTimeout(()=>r(g===gen),ms*speed));
+const f2=x=>x==null?'tanımsız':x.toFixed(2).replace('.',',');
+const pct=x=>x==null?'–':Math.round(x*100)+'%';
+
+/* Pay/payda boşsa metrik tanımsızdır (0/0); 0 göstermek yanıltıcı olur. */
+function metrics(){
+  const {tp,fp,fn,tn}=C, n=tp+fp+fn+tn;
+  return {
+    acc:n?(tp+tn)/n:null,
+    pre:tp+fp?tp/(tp+fp):null,
+    rec:tp+fn?tp/(tp+fn):null,
+    f1:2*tp+fp+fn?2*tp/(2*tp+fp+fn):null   // = 2PR/(P+R); P tanımsız olsa da hesaplanabilir
+  };
+}
+const ROLE={acc:{num:['tp','tn'],den:KEYS},pre:{num:['tp'],den:['tp','fp']},rec:{num:['tp'],den:['tp','fn']},f1:{num:['tp'],den:['tp','fp','fn']}};
+
+function bumpCount(k){
+  const el=$('#c-'+k+' .ct'); if(el.textContent===String(C[k]))return;
+  el.textContent=C[k]; el.classList.remove('bump'); void el.offsetWidth; el.classList.add('bump');
+}
+function drawDots(){
+  if(mode==='demo')return;
+  const n=KEYS.reduce((a,k)=>a+C[k],0), ds=n<=100?10:4;
+  for(const k of KEYS){
+    const box=$('#c-'+k+' .dots'); box.style.setProperty('--ds',ds+'px');
+    const pos=k==='tp'||k==='fn';
+    if(box.children.length<C[k]){
+      const fr=document.createDocumentFragment();
+      for(let j=box.children.length;j<C[k];j++){const d=document.createElement('i');d.className='dot'+(pos?' t':'');fr.appendChild(d)}
+      box.appendChild(fr);
+    } else while(box.children.length>C[k]) box.lastChild.remove();
+  }
+}
+function formula(m){
+  const T=k=>`<span class="v ${k}">${k.toUpperCase()}</span>`, V=k=>`<span class="v ${k}">${C[k]}</span>`, n=KEYS.reduce((a,k)=>a+C[k],0);
+  const pn={cancer:'hasta',spam:'spam'}[mode]||'hırsız', pnl={cancer:'hastaların',spam:'spamların'}[mode]||'hırsızların';
+  const und=x=>x==null?' <i>(0/0: payda boş)</i>':'';
+  return {
+    acc:`Accuracy = (${T('tp')} + ${T('tn')}) / (${T('tp')} + ${T('tn')} + ${T('fp')} + ${T('fn')})<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= (${V('tp')} + ${V('tn')}) / ${n} = <b>${f2(m.acc)}</b>${und(m.acc)}<br><i>“Tüm tahminlerimin kaçı doğru?”</i>`,
+    pre:`Precision = ${T('tp')} / (${T('tp')} + ${T('fp')})<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= ${V('tp')} / (${V('tp')} + ${V('fp')}) = <b>${f2(m.pre)}</b>${und(m.pre)}<br><i>“Pozitif (${pn}) dediklerimin kaçı gerçekten pozitif?”</i>`,
+    rec:`Recall = ${T('tp')} / (${T('tp')} + ${T('fn')})<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= ${V('tp')} / (${V('tp')} + ${V('fn')}) = <b>${f2(m.rec)}</b>${und(m.rec)}<br><i>“Gerçek pozitiflerin (${pnl}) kaçını yakaladım?”</i>`,
+    f1:`F1 = 2·P·R / (P + R) = 2·${T('tp')} / (2·${T('tp')} + ${T('fp')} + ${T('fn')})<br>&nbsp;&nbsp;&nbsp;= 2·${V('tp')} / (2·${V('tp')} + ${V('fp')} + ${V('fn')}) = <b>${f2(m.f1)}</b>${und(m.f1)}<br><i>TN’yi hiç kullanmaz; P ile R’den biri düşükse F1 de düşük kalır.</i>`
+  }[sel];
+}
+function render(){
+  KEYS.forEach(bumpCount); drawDots();
+  const m=metrics();
+  $$('.mrow').forEach(r=>{const x=m[r.dataset.m];r.querySelector('i').style.width=(x==null?0:x*100)+'%';r.querySelector('b').textContent=pct(x)});
+  $('#fm').innerHTML=formula(m);
+  const R=ROLE[sel];
+  for(const k of KEYS){const c=$('#c-'+k);c.classList.toggle('num',R.num.includes(k));c.classList.toggle('den',!R.num.includes(k)&&R.den.includes(k));c.classList.toggle('off',!R.den.includes(k))}
+  $('#note').innerHTML=note(m);
+}
+function note(m){
+  if(mode==='demo'){
+    if(idx<10||busy)return '';
+    return `Sonuç: TP=${C.tp}, TN=${C.tn}, FP=${C.fp}, FN=${C.fn}. 10 tahminin ${C.tp+C.tn}’sı doğru (Accuracy ${f2(m.acc)}); “hırsız” dediğimiz ${C.tp+C.fp} kişinin ${C.tp}’ü gerçekten hırsız (Precision ${f2(m.pre)}); ${C.tp+C.fn} gerçek hırsızın ${C.tp}’ünü yakaladık (Recall ${f2(m.rec)}). P ve R eşit olduğundan F1 de ${f2(m.f1)}. Dört değerin eşit çıkması bu örneğe özgü bir tesadüftür.`;
+  }
+  if(mode==='broken') return 'Accuracy %99 görünüyor ama tek hırsızı kaçırdık: Recall = 0 ve F1 = 0. Precision ise <b>tanımsız</b> (0/0), çünkü kimseye “hırsız” denmedi. Dengesiz verilerde accuracy tek başına yanıltıcıdır.';
+  if(mode==='slider'){
+    const avg=(m.pre+m.rec)/2, gap=Math.abs(m.pre-m.rec);
+    return `Aritmetik ortalama (P+R)/2 = ${f2(avg)}, harmonik ortalama F1 = ${f2(m.f1)}. `+
+      (gap>.3?'P ile R arasında büyük fark var, bu yüzden F1 düşük olana doğru çekiliyor: iki metrikten birini feda etmek F1’de cezalandırılır.':'P ile R birbirine yakın olduğunda iki ortalama da birbirine yakın çıkar.')+
+      '<br>Hangi ayarın doğru olduğu önceliğe bağlıdır: havalimanı güvenliği hassasiyeti en yükseğe çeker (Recall öncelikli, yanlış alarm göze alınır); alışveriş merkezi ise müşteri memnuniyeti için daha düşük hassasiyetle çalışır.';
+  }
+  return RW[mode].note(m,+$('#rng4').value);
+}
+
+/* ---- 1) Demo ---- */
+function buildPeople(){
+  $('#people').innerHTML=real.map((_,i)=>`<div class="p" id="p${i}"><div class="f">🧑</div><span class="tag pr"></span><span class="tag rl"></span>${i+1}</div>`).join('');
+}
+const cellOf=i=>pred[i]?(real[i]?'tp':'fp'):(real[i]?'fn':'tn');
+const names={tp:'<b>TP</b>: “Hırsız” dedik, gerçekten hırsız ✔',fp:'<b>FP</b>: “Hırsız” dedik ama masum ✘ (yanlış alarm)',fn:'<b>FN</b>: “Değil” dedik ama hırsızdı ✘ (kaçırdık)',tn:'<b>TN</b>: “Değil” dedik, gerçekten masum ✔'};
+const msg=h=>$('#msg').innerHTML=h;
+
+async function fly(i,k){
+  const tok=document.createElement('div'); tok.className='tk'+(real[i]?' t':''); tok.textContent=i+1;
+  $('#c-'+k+' .dots').appendChild(tok);
+  if(reduce||!tok.animate)return;
+  const a=$('#p'+i+' .f').getBoundingClientRect(), b=tok.getBoundingClientRect();
+  const dx=a.left+a.width/2-(b.left+b.width/2), dy=a.top+a.height/2-(b.top+b.height/2);
+  await tok.animate([
+    {transform:`translate(${dx}px,${dy}px) scale(1.4)`},
+    {transform:`translate(${dx*.5}px,${dy*.5-50}px) scale(1.25)`,offset:.45},
+    {transform:'translate(0,0) scale(1)'}
+  ],{duration:750*speed,easing:'ease-in-out'}).finished.catch(()=>{});
+}
+async function step(){
+  if(busy||idx>=10||mode!=='demo')return;
+  busy=true; updCtl(); const g=gen, i=idx++;
+  $('#prog').textContent=`${i+1} / 10`;
+  const p=$('#p'+i); p.classList.add('act');
+  p.querySelector('.pr').textContent=pred[i]?'🚨 Hırsız':'✅ Değil';
+  msg(`Müşteri ${i+1}: tahmininiz → <b>${pred[i]?'“Hırsız!”':'“Hırsız değil.”'}</b>`);
+  if(!await wait(1000,g))return;
+  p.classList.add(real[i]?'rt':'rn'); p.querySelector('.f').textContent=real[i]?'🦹':'🙂';
+  p.querySelector('.rl').textContent=real[i]?'Gerçek: hırsız':'Gerçek: masum';
+  msg(`Üstü arandı: gerçekte <b>${real[i]?'HIRSIZ':'masum bir müşteri'}</b>.`);
+  if(!await wait(900,g))return;
+  const k=cellOf(i), cell=$('#c-'+k); cell.classList.add('land');
+  await fly(i,k); if(g!==gen)return;
+  C[k]++; p.classList.remove('act'); p.classList.add('done');
+  msg(`Müşteri ${i+1} → ${names[k]}`); render();
+  if(!await wait(700,g))return;
+  cell.classList.remove('land'); busy=false;
+  if(idx>=10){msg('Hepsi bitti! Şimdi aşağıdan metriklere tıklayıp hangi hücrelerin kullanıldığına bakın.');render()}
+  updCtl();
+}
+async function play(){
+  if(playing){playing=false;updCtl();return}          // duraklat (mevcut müşteri bitince durur)
+  if(idx>=10)resetDemo();
+  playing=true; updCtl(); const g=gen;
+  while(playing&&g===gen&&idx<10&&mode==='demo'){ if(!busy) await step(); else await wait(150,g); }
+  if(g===gen){playing=false;updCtl()}
+}
+function updCtl(){
+  $('#play').textContent=playing?'⏸ Duraklat':idx>=10?'↻ Tekrar oynat':idx?'▶ Devam et':'▶ Oynat';
+  $('#next').disabled=playing||busy||idx>=10;
+}
+function resetDemo(){
+  gen++; busy=false; playing=false; idx=0; C={tp:0,fp:0,fn:0,tn:0};
+  KEYS.forEach(k=>{$('#c-'+k+' .dots').innerHTML='';$('#c-'+k).classList.remove('land')});
+  buildPeople(); $('#prog').textContent='0 / 10';
+  msg('Başlamak için “Oynat” veya “Sonraki müşteri” düğmesine basın (klavyede → tuşu da çalışır).');
+  render(); updCtl();
+}
+
+/* ---- 3) Alarm ayarı ---- */
+function slider(){
+  const s=+$('#rng').value; $('#sv').textContent=s;
+  const tp=6+Math.round(s*1.4), fp=Math.round(2+s*s*0.36);
+  C={tp,fn:20-tp,fp,tn:80-fp}; render();
+}
+
+/* ---- 4-5) Gerçek hayat ---- */
+const RW={
+ cancer:{pri:'rec',sl:'Testin şüphe eşiği',lo:'Katı (az kişi şüpheli)',hi:'Gevşek (çok kişi şüpheli)',
+  h:['Gerçek: Hasta','Gerçek: Sağlıklı','Test: Pozitif','Test: Negatif'],
+  lg:'Her nokta = 1 kişi. Kırmızı noktalar gerçekten hasta olanlar (pozitif sınıf).',
+  calc:s=>{const tp=25+Math.round(s*2.5),fp=10+Math.round(s*s*2.5);return{tp,fn:50-tp,fp,tn:950-fp}},
+  head:'1000 kişi taranıyor, 50’si gerçekten hasta (pozitif sınıf = hasta).',
+  bad:C=>`<b>${C.fn}</b> hasta kaçırıldı (FN): “sağlıklısınız” denen hasta tedavisiz kalır, bu felakettir. <b>${C.fp}</b> sağlıklı kişiye “şüpheli” denildi (FP): ek tetkik ve stres demek, ama telafi edilebilir.`,
+  note:(m,s)=>s<=3
+    ?`Precision yüksek (${f2(m.pre)}) ama Recall yalnızca ${f2(m.rec)}: <b>${C.fn} hasta</b> “sağlıklı” diye eve gönderiliyor. Bir tarama testi için bu kabul edilemez.`
+    :s>=8
+    ?`Recall ${f2(m.rec)}: neredeyse hiç hasta kaçmıyor. Bedeli Precision’ın ${f2(m.pre)} değerine düşmesi; pozitif çıkanların çoğu aslında sağlıklı ve ek tetkike gidiyor. Taramada bu bilinçli bir takastır.`
+    :`Recall ${f2(m.rec)}, Precision ${f2(m.pre)}. Hâlâ <b>${C.fn} hasta</b> kaçıyor; taramada eşik genellikle daha da gevşetilir (kaydırıcıyı sağa çekin), çünkü öncelik Recall’dur.`},
+ spam:{pri:'pre',sl:'Filtre agresifliği',lo:'Temkinli (az mail spam sayılır)',hi:'Agresif (çok mail spam sayılır)',
+  h:['Gerçek: Spam','Gerçek: Normal','Filtre: Spam','Filtre: Normal'],
+  lg:'Her nokta = 1 e-posta. Kırmızı noktalar gerçekten spam olanlar (pozitif sınıf).',
+  calc:s=>{const tp=180+Math.round(s*12),fp=Math.round(s*s*0.8);return{tp,fn:300-tp,fp,tn:700-fp}},
+  head:'1000 e-posta geldi, 300’ü gerçekten spam (pozitif sınıf = spam).',
+  bad:C=>`<b>${C.fp}</b> önemli mail spam klasörüne gitti (FP): iş teklifi, fatura, sınav sonucu kaybolabilir, bu kötüdür. <b>${C.fn}</b> spam gelen kutusuna sızdı (FN): yalnızca can sıkıcıdır.`,
+  note:(m,s)=>s>=7
+    ?`Recall ${f2(m.rec)}: spamların neredeyse hepsi yakalanıyor, ama <b>${C.fp} önemli mail</b> spam klasöründe kayboluyor (Precision ${f2(m.pre)}). Spam filtresi için kötü bir takas.`
+    :s<=3
+    ?`Precision ${f2(m.pre)}: “spam” denen maillerin ${C.fp?'neredeyse ':''}hepsi gerçekten spam, önemli mail kaybı ${C.fp?'çok az ('+C.fp+')':'yok'}. ${C.fn} spam gelen kutusuna sızıyor ama bu yalnızca can sıkıcı. Spam filtresi için iyi bir denge.`
+    :`Precision ${f2(m.pre)}, Recall ${f2(m.rec)}. ${C.fp} önemli mail kayboluyor; spam filtresinde öncelik Precision olduğundan filtre genellikle biraz daha temkinli ayarlanır (kaydırıcıyı sola çekin).`}
+};
+function realUpd(){
+  const R=RW[mode], s=+$('#rng4').value; $('#sv4').textContent=s;
+  C=R.calc(s); $('#msg4').innerHTML=R.bad(C); render();
+}
+function realSet(k){
+  const R=RW[k]; sel=R.pri; $('#rng4').value=5;
+  $('#sl4').textContent=R.sl; $('#lo4').textContent=R.lo; $('#hi4').textContent=R.hi; $('#head4').textContent=R.head;
+  hdr(...R.h); $('#lg').textContent=R.lg;
+  $$('.mrow').forEach(x=>{x.classList.toggle('sel',x.dataset.m===sel);x.classList.toggle('pri',x.dataset.m===sel)});
+  realUpd();
+}
+
+/* ---- Mod değişimi ---- */
+const hdr=(a,b,c,e)=>{$('#h1').textContent=a;$('#h2').textContent=b;$('#h3').textContent=c;$('#h4').textContent=e};
+function setMode(m){
+  mode=m; gen++; busy=false; playing=false;
+  $$('#tabs button').forEach(b=>b.classList.toggle('on',b.dataset.s===m));
+  $('#sc-demo').hidden=m!=='demo'; $('#sc-broken').hidden=m!=='broken'; $('#sc-slider').hidden=m!=='slider'; $('#sc-real').hidden=!(m in RW);
+  $('#mxw').classList.toggle('big',m!=='demo');
+  KEYS.forEach(k=>{$('#c-'+k+' .dots').innerHTML='';$('#c-'+k).classList.remove('land')});
+  $$('.mrow').forEach(x=>x.classList.remove('pri'));
+  hdr('Gerçek: Hırsız','Gerçek: Değil','Tahmin: Hırsız','Tahmin: Değil');
+  $('#lg').textContent=m==='demo'?'Numaralı yuvarlak = müşteri. Kırmızı = gerçekten hırsız, yeşil = masum.':'Her nokta = 1 müşteri. Kırmızı noktalar gerçek hırsızlar (pozitif sınıf).';
+  if(m==='demo')resetDemo();
+  else if(m==='broken'){C={tp:0,fp:0,fn:1,tn:99};render()}
+  else if(m==='slider')slider();
+  else realSet(m);
+}
+
+$('#tabs').onclick=e=>{const b=e.target.closest('button');if(b&&b.dataset.s!==mode)setMode(b.dataset.s)};
+$('#play').onclick=play; $('#next').onclick=step; $('#reset').onclick=resetDemo;
+$('#spd').onchange=e=>speed=+e.target.value;
+$('#rng').oninput=slider; $('#rng4').oninput=realUpd;
+$$('.mrow').forEach(r=>{
+  const pick=()=>{sel=r.dataset.m;$$('.mrow').forEach(x=>x.classList.toggle('sel',x===r));render()};
+  r.onclick=pick; r.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();pick()}};
+});
+document.addEventListener('keydown',e=>{
+  if(e.key==='ArrowRight'&&mode==='demo'&&!/INPUT|SELECT/.test(e.target.tagName)&&!playing)step();
+});
+if(reduce)speed=.45, $('#spd').value='0.45';
+setMode('demo');
+</script>
+</body>
+</html>
